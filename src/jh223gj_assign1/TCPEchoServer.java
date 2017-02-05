@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -23,20 +25,14 @@ public class TCPEchoServer {
 		server.run(args);
 	}
 	
-	public void run(String[] args){
-		/* Thread pool for concurrent execution => 
-		 * fixed size, means probably some requests will not be handled directly but prevents server from crashing */
-		ExecutorService scheduler = Executors.newFixedThreadPool(10);
-
-		
-		
+	public void run(String[] args){	
 		try {
 			/* Create Socket */
 			ServerSocket socket = new ServerSocket(MYPORT);
 			
 			/* Endless loop waiting for client connections */
 			while(true){
-				scheduler.execute(new ConnectionHandler(socket.accept()));
+				new Thread(new ConnectionHandler(socket.accept())).start();
 				System.out.println("Active Threads:" + Thread.activeCount());
 				Thread[] threads = new Thread[Thread.activeCount()];
 				Thread.enumerate(threads);
@@ -44,7 +40,6 @@ public class TCPEchoServer {
 				System.out.println(t.toString());
 			}
 		} catch (IOException e) {
-			scheduler.shutdown();
 		}
 		
 		
@@ -66,21 +61,23 @@ public class TCPEchoServer {
 				/* stay connected until client closes connection */
 				while (true) {					
 					byte[] data = new byte[BUFSIZE];
-					
+					Instant before = Instant.now();
 					/* End of stream has been reached => EOF => Closed connection */
 					try {
 						receivePacket.readFully(data, 0, MESSAGE_SIZE);
 					} catch (EOFException e){
 						break;
 					}
-					
-					String receivedString = new String(Arrays.copyOfRange(data, 0, MESSAGE_SIZE));
+					Duration timeReceive = Duration.between(before, Instant.now());
+					String receivedString = new String(data, 0, MESSAGE_SIZE);
 					/* Send package back (echo) */
 					sendPacket.writeBytes(receivedString);
 					
 					System.out.printf("TCP echo request from %s", connection.getInetAddress().getHostAddress());
 				    System.out.printf(" using port %d", connection.getPort());
-				    System.out.printf(" handled from thread %d; Message: %s\n", Thread.currentThread().getId(), receivedString);
+				    System.out.printf(" handled from thread %d; Message: %s", Thread.currentThread().getId(), receivedString);
+				    System.out.printf(" receiving time: %d; total time: %d\n", timeReceive.toNanos(), Duration.between(before, Instant.now()).toNanos());
+
 				}
 				/* close connection and thread */
 				System.out.printf("TCP Connection from %s using port %d handled by thread %d is closed.\n", connection.getInetAddress().getHostAddress(), connection.getPort(), Thread.currentThread().getId());
