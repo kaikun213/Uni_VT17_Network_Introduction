@@ -18,8 +18,7 @@ public class TCPEchoServer {
 	public static final int BUFSIZE= 1024;
 	public static final int MESSAGE_SIZE = 16;
     public static final int MYPORT= 4950;
-    public static final int nTHREADS = 10;
-	
+    
 	public static void main(String[] args) throws IOException{
 		TCPEchoServer server = new TCPEchoServer();
 		server.run(args);
