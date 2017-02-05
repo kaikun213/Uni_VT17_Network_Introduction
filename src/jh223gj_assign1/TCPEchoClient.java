@@ -4,16 +4,15 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.net.SocketException;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Arrays;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.locks.LockSupport;
 
 public class TCPEchoClient extends AbstractNetworkingLayer{
 	
     public static final String MSG= "An Echo Message!";
+    public static final long LATENCY = 1000000;	// estimate for RTT and OS-Thread scheduling uncertainty 
     private Socket socket;
 	private DataOutputStream sendPacket;
 	private DataInputStream receivePacket;
@@ -24,6 +23,7 @@ public class TCPEchoClient extends AbstractNetworkingLayer{
 	    
 		/* Initialize all variables with the command line parameters */
 	    initializeVariables(args);
+	    
 	    
 	    socket = new Socket();
 	    try {
@@ -36,88 +36,77 @@ public class TCPEchoClient extends AbstractNetworkingLayer{
 	    } catch (IOException e){
 	    	e.printStackTrace();
 	    }
-		    
-		    
-		    /* Send messages per second according to message transfer rate */
-		    
-			/* Make sure to send a message when transferRate is zero */
-			if (transferRateValue == 0) transferRateValue = 1;
-			/* creating timer task, timer for scheduled execution*/
-		    task = new SendReceiveTimer();
-		    timer = new Timer();
+		
+	    /* Set time out in case server is unreachable (E.g. no Server running on port) */
+		try {
+			socket.setSoTimeout(3000);
+		} catch (SocketException e1) {
+			System.err.printf("Failure: port=%s;ip-address=%s; could not connect to a server.", args[1], args[0]);
+			System.exit(1);
+		}
+		
+	    Instant before = Instant.now();
+		Duration timePassed;
+		
+		/* Make sure to send a message when transferRate is zero */
+		if (transferRateValue == 0) transferRateValue = 1;
+		
+		/* Send messages per second according to message transfer rate */
+		for (int i=0; i<transferRateValue; i++ ){
+			/* reset buffer */
+	    	buf = new byte[buf.length];
+	    	boolean end = false;
+			int bytesRead = 0;
+			String receivedString = "";
 			
-			before = Instant.now();
-			/* scheduling the tasks at a constant rate => 999ms is 1sec minus an estimated execution time.  */
-			int sleepTime = (999/transferRateValue);
-			
-			/* we do not want to run it concurrently so we set minimum time between on 1ms and print a message how many messages we could sent */
-			if (sleepTime<=0) sleepTime = 1;
-			timer.scheduleAtFixedRate(task,0, sleepTime);      
-			synchronized (task){
-				try {
-					task.wait();
-					timer.cancel();
-					if (messagesSent<transferRateValue) System.out.printf("Could only sent %d messages of %d. \n",messagesSent, transferRateValue);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
-			/* time adjustment for nanoseconds */
-			if (Duration.between(before, Instant.now()).toNanos()<1000000000) {
-				LockSupport.parkNanos(1000000000-Duration.between(before, Instant.now()).toNanos());
-			}
-			after = Instant.now();
-			timePassed = Duration.between(before, after);
-			System.out.println("Time taken in nanoseconds: " + timePassed.toNanos());
-			
-			/* close down connection */
-		    try {
-				socket.close();
+			/* send and receive packets */
+			try {
+				sendPacket.writeBytes(MSG);
+
+			    while(!end)
+			    {
+			        bytesRead = receivePacket.read(buf);
+			        receivedString += new String(buf, 0, bytesRead);
+			        if (receivedString.length() == MSG.length())
+			        {
+			            end = true;
+			        }
+			    }
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-		    
-		    return timePassed.toNanos();
-	}
-	
-	/* Implementation of sending, receiving and comparing messages task */
-    class SendReceiveTimer extends TimerTask{    		
-		   @Override
-			public void run() {
-			   synchronized (this){
-				   /* As long as there is time left */
-				   if (Duration.between(before, Instant.now()).toNanos()<1000000000){
-					   /* if all messages sent notify thread */
-					   if (++messagesSent >= transferRateValue) {
-						   this.cancel();
-						   this.notify();
-					   }
-					    try {
-					    	/* reset buffer */
-					    	buf = new byte[buf.length];
-					    	
-							/* send and receive packets */
-							sendPacket.writeBytes(MSG);
-
-							receivePacket.readFully(buf, 0, MSG.length());
-							String receivedString = new String(new String(Arrays.copyOfRange(buf, 0, MSG.length())));
-							
-							/* Compare sent and received message */							
-							if (receivedString.compareTo(MSG) == 0)
-							    System.out.printf("%d bytes sent and received\n", receivedString.length());
-							else
-							    System.out.printf("Sent and received msg not equal! Received string(%d): %s != %s\n", receivedString.length(),receivedString, MSG);
-							 
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
-				   }
-				   else {
-					   this.cancel();
-					   this.notify();
-				   }
-			   }
+			
+			/* Compare sent and received message */							
+			if (receivedString.compareTo(MSG) == 0)
+			    System.out.printf("%d bytes sent and received from PORT %d \n", receivedString.length(), socket.getLocalPort());
+			else
+			    System.out.printf("Sent and received msg not equal! Received string(%d): %s != %s\n", receivedString.length(),receivedString, MSG);
+			 
+			
+			/* Delay the execution to have proper message transfer rate (adjust by average transfer time) */
+			if (1000000000 - LATENCY - Duration.between(before, Instant.now()).toNanos() <= 0) { 
+				System.out.printf("Could only sent %d messages of %d. \n",i, transferRateValue);
+				break;
 			}
+			
+			/* calculate sleepTime = time Threads stops execution. Remaining time divided by messages left */
+			LockSupport.parkNanos((1000000000-Duration.between(before, Instant.now()).toNanos())/(transferRateValue-i));
+			
+		}
+		/* time adjustment for nanoseconds */
+		if (Duration.between(before, Instant.now()).toNanos()<1000000000) {
+			LockSupport.parkNanos(1000000000-Duration.between(before, Instant.now()).toNanos());
+		}
+		timePassed = Duration.between(before, Instant.now());
+		System.out.println("Time taken in nanoseconds: " + timePassed.toNanos());
+		
+		/* close down connection */
+	    try {
+			socket.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	    
+	    return timePassed.toNanos();
 	}
-
 }

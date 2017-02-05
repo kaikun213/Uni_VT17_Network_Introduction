@@ -1,4 +1,4 @@
-package backup;
+package jh223gj_assign1;
 /*
   UDPEchoClient.java
   A simple echo client with no error handling
@@ -11,12 +11,17 @@ import java.net.SocketException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.concurrent.locks.LockSupport;
+/**
+ * Implementation of a simple UDPEchoClient with error handling, buffer size and message transfer rate. 
+ * Sends the same message redundantly. Message transfer rate is as exact as the Network Latency estimate. (Higer Latency => more exact/less messages) 
+ * 
+ * @author kaikun
+ *
+ */
 
-import jh223gj_assign1.AbstractNetworkingLayer;
-
-
-public class UDPEchoClientAlternative extends jh223gj_assign1.AbstractNetworkingLayer{
+public class UDPEchoClient extends jh223gj_assign1.AbstractNetworkingLayer{
     public static final String MSG= "An Echo Message!";
+    public static final long LATENCY = 1000000;	// estimate for RTT and OS-Thread scheduling uncertainty 
 
     public long run(String[] args) {
 	/* Check correct command line input parameters */
@@ -55,16 +60,14 @@ public class UDPEchoClientAlternative extends jh223gj_assign1.AbstractNetworking
 	
 	/* Create datagram packet for receiving echoed message */
 	DatagramPacket receivePacket= new DatagramPacket(buf, buf.length);
-	
-	/* Send messages per second according to message transfer rate */
-	
+		
 	Instant before = Instant.now();
-	Instant after;
 	Duration timePassed;
-	Duration remainingTime;
 	
 	/* Make sure to send a message when transferRate is zero */
 	if (transferRateValue == 0) transferRateValue = 1;
+	
+	/* Send messages per second according to message transfer rate */
 	for (int i=0; i<transferRateValue; i++ ){
 		/* Send and receive message*/
 		try {
@@ -83,20 +86,15 @@ public class UDPEchoClientAlternative extends jh223gj_assign1.AbstractNetworking
 		    System.out.printf("Sent and received msg not equal! Received string: %s\n", receivedString);
 		
 		/* Delay the execution to have proper message transfer rate (adjust by average transfer time) */
-			after = Instant.now();
-			timePassed = Duration.between(before, after);
-			/* 999ms (to take execution time into account) - [passed time] = [Remaining time]. [Remaining time] divided by [rest messages]  */
-			remainingTime = timePassed.minus(Duration.ofMillis(999)).abs();
-			long messagesLeft = (transferRateValue-i);
-			if (remainingTime.toNanos() <= 0) { 
-				System.out.printf("Could only sent %d messages of %d. Time passed: \n",i, transferRateValue, timePassed);
-				break;
-			}
-			/* calculate sleepTime = time Threads stops execution */
-			Duration sleepTime = remainingTime.dividedBy(messagesLeft);
-			LockSupport.parkNanos(sleepTime.toNanos());
+		if (1000000000 - LATENCY - Duration.between(before, Instant.now()).toNanos() <= 0) { 
+			System.out.printf("Could only sent %d messages of %d. \n",i, transferRateValue);
+			break;
+		}
+		
+		/* calculate sleepTime = time Threads stops execution. Remaining time divided by messages left */
+		LockSupport.parkNanos((1000000000-Duration.between(before, Instant.now()).toNanos())/(transferRateValue-i));
+		
 	}
-	System.out.println("Before adjustment: " + Duration.between(before, Instant.now()).toNanos());
 	/* time adjustment for nanoseconds */
 	if (Duration.between(before, Instant.now()).toNanos()<1000000000) {
 		LockSupport.parkNanos(1000000000-Duration.between(before, Instant.now()).toNanos());
@@ -106,11 +104,5 @@ public class UDPEchoClientAlternative extends jh223gj_assign1.AbstractNetworking
 	socket.close();
 	return timePassed.toNanos();
     }
-    
-    /* measure average RTT (round trip time)  */
-	//if (averageTime == null) averageTime = timePassed;
-	/* Formula: RTT = (α · Old_RTT) + ((1 − α) · New_Round_Trip_Sample) */
-	//else averageTime = Duration.ofNanos((long) (( (factorRTT*averageTime.toNanos())+((1-factorRTT)*(Duration.between(beforeNew, after).toNanos())) ) /2));
-
     
 }

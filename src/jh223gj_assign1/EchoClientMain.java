@@ -6,14 +6,16 @@ public class EchoClientMain {
 
 	public static void main(String[] args) {
 		TCPEchoClient client = new TCPEchoClient();
+		// TCPEchoClientTimer client = new TCPEchoClientTimer();
 		//UDPEchoClientTimer client = new UDPEchoClientTimer();
-		client.run(args);
+		//UDPEchoClient client = new UDPEchoClient();
+		for (int i=0;i<1000;i++) client.run(args);
 //		args[2] = "10000000";
 //		for (int i=0; i< 65000; i++){
 //			UDPEchoClientTimer.MSG += "a";
 //		}
 //		client.run(args);
-
+/*
 		ArrayList<Long> list250 = new ArrayList<Long>();
 		long average250 = 0;
 		ArrayList<Long> list500 = new ArrayList<Long>();
