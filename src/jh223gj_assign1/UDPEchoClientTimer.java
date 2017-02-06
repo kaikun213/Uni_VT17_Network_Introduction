@@ -61,7 +61,7 @@ public class UDPEchoClientTimer extends AbstractNetworkingLayer{
 	sendPacket = new DatagramPacket(MSG.getBytes(), MSG.length(), remoteBindPoint);
 	
 	/* Create datagram packet for receiving echoed message */
-	receivePacket = new DatagramPacket(buf, buf.length);
+	receivePacket = new DatagramPacket(buf, bufSize);
 	
 	/* Send messages per second according to message transfer rate */
 	/* Make sure to send a message when transferRate is zero */

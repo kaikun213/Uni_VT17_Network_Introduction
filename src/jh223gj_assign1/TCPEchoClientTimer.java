@@ -94,7 +94,7 @@ public class TCPEchoClientTimer extends AbstractNetworkingLayer{
 					   }
 					    try {
 					    	/* reset buffer */
-					    	buf = new byte[buf.length];
+					    	buf = new byte[bufSize];
 					    	
 							/* send and receive packets */
 							sendPacket.writeBytes(MSG);

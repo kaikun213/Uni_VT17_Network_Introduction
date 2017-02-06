@@ -59,7 +59,7 @@ public class UDPEchoClient extends jh223gj_assign1.AbstractNetworkingLayer{
 	DatagramPacket sendPacket= new DatagramPacket(MSG.getBytes(), MSG.length(), remoteBindPoint);
 	
 	/* Create datagram packet for receiving echoed message */
-	DatagramPacket receivePacket= new DatagramPacket(buf, buf.length);
+	DatagramPacket receivePacket= new DatagramPacket(buf, bufSize);
 		
 	Instant before = Instant.now();
 	Duration timePassed;

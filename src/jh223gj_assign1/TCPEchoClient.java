@@ -2,6 +2,7 @@ package jh223gj_assign1;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.EOFException;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketException;
@@ -39,7 +40,7 @@ public class TCPEchoClient extends AbstractNetworkingLayer{
 		
 	    /* Set time out in case server is unreachable (E.g. no Server running on port) */
 		try {
-			socket.setSoTimeout(3000);
+			socket.setSoTimeout(30000);
 		} catch (SocketException e1) {
 			System.err.printf("Failure: port=%s;ip-address=%s; could not connect to a server.", args[1], args[0]);
 			System.exit(1);
@@ -54,7 +55,7 @@ public class TCPEchoClient extends AbstractNetworkingLayer{
 		/* Send messages per second according to message transfer rate */
 		for (int i=0; i<transferRateValue; i++ ){
 			/* reset buffer */
-	    	buf = new byte[buf.length];
+	    	buf = new byte[bufSize];
 	    	boolean end = false;
 			int bytesRead = 0;
 			String receivedString = "";
@@ -63,15 +64,26 @@ public class TCPEchoClient extends AbstractNetworkingLayer{
 			try {
 				sendPacket.writeBytes(MSG);
 
-			    while(!end)
-			    {
-			        bytesRead = receivePacket.read(buf);
-			        receivedString += new String(buf, 0, bytesRead);
-			        if (receivedString.length() == MSG.length())
-			        {
-			            end = true;
-			        }
-			    }
+				try {
+					
+					while ((bytesRead = receivePacket.read(buf)) != -1) {
+						System.out.println("Available:" + receivePacket.available());
+						System.out.println("Amount of bytes:" + bytesRead +"\n");
+						receivedString += new String(buf, 0, bytesRead);
+					}
+					//receivePacket.readFully(data, 0, MESSAGE_SIZE);
+				} catch (EOFException e){
+					break;
+				}
+//			    while(!end)
+//			    {
+//			        bytesRead = receivePacket.read(buf);
+//			        receivedString += new String(buf, 0, bytesRead);
+//			        if (receivedString.length() == MSG.length() && receivePacket.available() == 0)
+//			        {
+//			            end = true;
+//			        }
+//			    }
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

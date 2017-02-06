@@ -9,7 +9,8 @@ public class EchoClientMain {
 		// TCPEchoClientTimer client = new TCPEchoClientTimer();
 		//UDPEchoClientTimer client = new UDPEchoClientTimer();
 		//UDPEchoClient client = new UDPEchoClient();
-		for (int i=0;i<1000;i++) client.run(args);
+		//for (int i=0;i<1000;i++) 
+			client.run(args);
 //		args[2] = "10000000";
 //		for (int i=0; i< 65000; i++){
 //			UDPEchoClientTimer.MSG += "a";

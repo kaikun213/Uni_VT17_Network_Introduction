@@ -20,6 +20,7 @@ import java.util.regex.Pattern;
 public abstract class AbstractNetworkingLayer {
     public static final int MYPORT= 0;
 	
+    protected int bufSize;
     protected byte[] buf;
 	protected int transferRateValue;
 	protected SocketAddress localBindPoint;
@@ -59,7 +60,7 @@ public abstract class AbstractNetworkingLayer {
 	
 	protected void initializeVariables(String[] args){
 		/* Read in buffer size */
-		int bufSize = Integer.parseInt(args[2]);
+		bufSize = Integer.parseInt(args[2]);
 		buf= new byte[bufSize];
 		
 		/* Read in message transfer rate */

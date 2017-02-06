@@ -18,7 +18,7 @@ public class TCPEchoServer {
 	public static final int BUFSIZE= 1024;
 	public static final int MESSAGE_SIZE = 16;
     public static final int MYPORT= 4950;
-    
+	
 	public static void main(String[] args) throws IOException{
 		TCPEchoServer server = new TCPEchoServer();
 		server.run(args);
@@ -57,18 +57,28 @@ public class TCPEchoServer {
 			try {
 				receivePacket = new DataInputStream(connection.getInputStream());
 				sendPacket = new DataOutputStream(connection.getOutputStream());
+
 				/* stay connected until client closes connection */
 				while (true) {					
 					byte[] data = new byte[BUFSIZE];
+
 					Instant before = Instant.now();
+					String receivedString = "";
+					int bytesRead;
 					/* End of stream has been reached => EOF => Closed connection */
 					try {
-						receivePacket.readFully(data, 0, MESSAGE_SIZE);
+						
+						while ((bytesRead = receivePacket.read(data)) != -1) {
+							System.out.println("Available:" + receivePacket.available());
+							System.out.println("Amount of bytes:" + bytesRead +"\n");
+							receivedString += new String(data, 0, bytesRead);
+						}
+						//receivePacket.readFully(data, 0, MESSAGE_SIZE);
 					} catch (EOFException e){
 						break;
 					}
 					Duration timeReceive = Duration.between(before, Instant.now());
-					String receivedString = new String(data, 0, MESSAGE_SIZE);
+					//String receivedString = new String(data, 0, MESSAGE_SIZE);
 					/* Send package back (echo) */
 					sendPacket.writeBytes(receivedString);
 					
@@ -82,7 +92,7 @@ public class TCPEchoServer {
 				System.out.printf("TCP Connection from %s using port %d handled by thread %d is closed.\n", connection.getInetAddress().getHostAddress(), connection.getPort(), Thread.currentThread().getId());
 				connection.close();
 			} catch (IOException e){
-				e.printStackTrace();
+				System.out.println(e.getMessage());
 			}
 		}
 		
