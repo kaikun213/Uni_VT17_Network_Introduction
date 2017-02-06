@@ -14,7 +14,11 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.locks.LockSupport;
 
-
+/** Implementation of a simple UDPEchoClient using a Timer to schedule the tasks precicly for the message transfer rate.
+ * 
+ * @author kaikun
+ *
+ */
 public class UDPEchoClientTimer extends AbstractNetworkingLayer{
     public static String MSG= "An Echo Message!";
     private DatagramSocket socket = null;
