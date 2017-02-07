@@ -4,11 +4,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.time.Duration;
-import java.time.Instant;
 import java.util.Scanner;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -17,7 +13,7 @@ import java.util.regex.Pattern;
  * networking layers (UDP or TCP).
  */
 
-public abstract class AbstractNetworkingLayer {
+public abstract class AbstractClient {
     public static final int MYPORT= 0;
 	
     protected int bufSize;
@@ -25,16 +21,12 @@ public abstract class AbstractNetworkingLayer {
 	protected int transferRateValue;
 	protected SocketAddress localBindPoint;
 	protected SocketAddress remoteBindPoint;
-	/* For time measuring and scheduling => Message Transfer Rate */
-    TimerTask task;    		
-    Timer timer;
-    Instant before;
-    Instant after;
-    Duration timePassed;
-    int messagesSent = 0;
+	
+	/* returns actual transfer time in nano seconds */
+	abstract long run(String[] args);
 	
 	/* Checks correct inputs in the format: IP_Address PORT Buffer_Size Message_Transfer_Rate */
-	protected void correctInputs(String[] args){
+	protected void checkInputs(String[] args){
 		/* Check correct command line input parameters */
 		if (args.length != 4) {
 		    System.err.printf("Error.Please provide valid input parameters.\n usage: server_name port buffer_size message_transfer_rate\n");
@@ -58,14 +50,17 @@ public abstract class AbstractNetworkingLayer {
 		}
 	}
 	
-	protected void initializeVariables(String[] args){
+	protected void setup(String[] args){
+		/* Check correct command line input parameters */
+		checkInputs(args);
+		
 		/* Read in buffer size */
 		bufSize = Integer.parseInt(args[2]);
 		buf= new byte[bufSize];
 		
-		/* Read in message transfer rate */
-		transferRateValue = Integer.parseInt(args[3]);
-		
+		/* Read in message transfer rate =>  Make sure to send a message when transferRate is zero  */
+		transferRateValue = (Integer.parseInt(args[3]) == 0)? 1 : Integer.parseInt(args[3]);
+				
 		/* Create local endpoint using bind() */
 		localBindPoint= new InetSocketAddress(MYPORT);
 		

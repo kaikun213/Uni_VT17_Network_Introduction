@@ -11,19 +11,24 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.locks.LockSupport;
 
-public class TCPEchoClientTimer extends AbstractNetworkingLayer{
+public class TCPEchoClientTimer extends AbstractClient{
 	
     public static final String MSG= "An Echo Message!";
     private Socket socket;
 	private DataOutputStream sendPacket;
 	private DataInputStream receivePacket;
+	private TimerTask task;    		
+    private Timer timer;
+    private Instant before, after;
+    private Duration timePassed;
+    private int messagesSent;
 	
 	public long run(String[] args){
 		/* Check correct command line input parameters */
-	    correctInputs(args);	
+	    checkInputs(args);	
 	    
 		/* Initialize all variables with the command line parameters */
-	    initializeVariables(args);
+	    setup(args);
 	    
 	    socket = new Socket();
 	    try {

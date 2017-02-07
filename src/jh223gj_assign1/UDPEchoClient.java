@@ -19,16 +19,16 @@ import java.util.concurrent.locks.LockSupport;
  *
  */
 
-public class UDPEchoClient extends jh223gj_assign1.AbstractNetworkingLayer{
+public class UDPEchoClient extends jh223gj_assign1.AbstractClient{
     public static final String MSG= "An Echo Message!";
     public static final long LATENCY = 1000000;	// estimate for RTT and OS-Thread scheduling uncertainty 
 
     public long run(String[] args) {
 	/* Check correct command line input parameters */
-    correctInputs(args);	
+    checkInputs(args);	
     
 	/* Initialize all variables with the command line parameters */
-    initializeVariables(args);
+    setup(args);
     
 	/* Create socket */
 	DatagramSocket socket = null;
@@ -62,10 +62,6 @@ public class UDPEchoClient extends jh223gj_assign1.AbstractNetworkingLayer{
 	DatagramPacket receivePacket= new DatagramPacket(buf, bufSize);
 		
 	Instant before = Instant.now();
-	Duration timePassed;
-	
-	/* Make sure to send a message when transferRate is zero */
-	if (transferRateValue == 0) transferRateValue = 1;
 	
 	/* Send messages per second according to message transfer rate */
 	for (int i=0; i<transferRateValue; i++ ){
@@ -80,12 +76,12 @@ public class UDPEchoClient extends jh223gj_assign1.AbstractNetworkingLayer{
 		
 		/* Compare sent and received message */
 		String receivedString= new String(receivePacket.getData(), receivePacket.getOffset(), receivePacket.getLength());
-		if (receivedString.compareTo(MSG) == 0) System.out.print("");
-		    //System.out.printf("%d bytes sent and received\n", receivePacket.getLength());
+		if (receivedString.compareTo(MSG) == 0) 
+		    System.out.printf("%d bytes sent and received\n", receivePacket.getLength());
 		else
 		    System.out.printf("Sent and received msg not equal! Received string: %s\n", receivedString);
 		
-		/* Delay the execution to have proper message transfer rate (adjust by average transfer time) */
+		/* Stop the execution if remaining time exceeds limit: Calculates remaining time in respect to latency it takes to send and receive a message (adjustment) */
 		if (1000000000 - LATENCY - Duration.between(before, Instant.now()).toNanos() <= 0) { 
 			System.out.printf("Could only sent %d messages of %d. \n",i, transferRateValue);
 			break;
@@ -95,12 +91,12 @@ public class UDPEchoClient extends jh223gj_assign1.AbstractNetworkingLayer{
 		LockSupport.parkNanos((1000000000-Duration.between(before, Instant.now()).toNanos())/(transferRateValue-i));
 		
 	}
-	/* time adjustment for nanoseconds */
+	/* adjust execution time in nanoseconds to have perfectly 1sec */
 	if (Duration.between(before, Instant.now()).toNanos()<1000000000) {
 		LockSupport.parkNanos(1000000000-Duration.between(before, Instant.now()).toNanos());
 	}
-	timePassed = Duration.between(before, Instant.now());
-	System.out.println("Time taken in nanoseconds: " + timePassed.toNanos());
+	Duration timePassed = Duration.between(before, Instant.now());
+	System.out.println("Total time taken in nanoseconds: " + timePassed.toNanos());
 	socket.close();
 	return timePassed.toNanos();
     }

@@ -2,114 +2,62 @@ package jh223gj_assign1;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.EOFException;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.concurrent.locks.LockSupport;
 
-public class TCPEchoClient extends AbstractNetworkingLayer{
+public class TCPEchoClient extends AbstractClient{
 	
     public static final String MSG= "An Echo Message!";
-    public static final long LATENCY = 1000000;	// estimate for RTT and OS-Thread scheduling uncertainty 
+    public static final long LATENCY = 1000000;	// estimate for RTT and OS-Thread scheduling uncertainty in nano seconds
     private Socket socket;
 	private DataOutputStream sendPacket;
 	private DataInputStream receivePacket;
 	
 	public long run(String[] args){
-		/* Check correct command line input parameters */
-	    correctInputs(args);	
+		/* Check CL-Parameters and initialize vairables */
+	    setup(args);
 	    
-		/* Initialize all variables with the command line parameters */
-	    initializeVariables(args);
-	    
-	    
-	    socket = new Socket();
-	    try {
-	    	socket.bind(localBindPoint);
-			socket.connect(remoteBindPoint);
-			/* set Buffer size */
-		    socket.setReceiveBufferSize(buf.length);
-		    sendPacket = new DataOutputStream(socket.getOutputStream());
-		    receivePacket = new DataInputStream(socket.getInputStream());
-	    } catch (IOException e){
-	    	e.printStackTrace();
-	    }
-		
-	    /* Set time out in case server is unreachable (E.g. no Server running on port) */
-		try {
-			socket.setSoTimeout(30000);
-		} catch (SocketException e1) {
-			System.err.printf("Failure: port=%s;ip-address=%s; could not connect to a server.", args[1], args[0]);
-			System.exit(1);
-		}
+	    /* Setup connection to server and create Input/Output stream */
+	    setupConnection();
 		
 	    Instant before = Instant.now();
-		Duration timePassed;
 		
-		/* Make sure to send a message when transferRate is zero */
-		if (transferRateValue == 0) transferRateValue = 1;
-		
-		/* Send messages per second according to message transfer rate */
+		/* Send messages according to message transfer rate */
 		for (int i=0; i<transferRateValue; i++ ){
-			/* reset buffer */
-	    	buf = new byte[bufSize];
-	    	boolean end = false;
-			int bytesRead = 0;
-			String receivedString = "";
-			
-			/* send and receive packets */
 			try {
+				/* send and receive packets */
 				sendPacket.writeBytes(MSG);
-
-				try {
-					
-					while ((bytesRead = receivePacket.read(buf)) != -1) {
-						System.out.println("Available:" + receivePacket.available());
-						System.out.println("Amount of bytes:" + bytesRead +"\n");
-						receivedString += new String(buf, 0, bytesRead);
-					}
-					//receivePacket.readFully(data, 0, MESSAGE_SIZE);
-				} catch (EOFException e){
-					break;
-				}
-//			    while(!end)
-//			    {
-//			        bytesRead = receivePacket.read(buf);
-//			        receivedString += new String(buf, 0, bytesRead);
-//			        if (receivedString.length() == MSG.length() && receivePacket.available() == 0)
-//			        {
-//			            end = true;
-//			        }
-//			    }
+				String receivedString = readMessage();
+				
+				/* Compare sent and received message */							
+				if (receivedString.compareTo(MSG) == 0)
+				    System.out.printf("%d bytes sent and received from PORT %d \n", receivedString.length(), socket.getLocalPort());
+				else
+				    System.out.printf("Sent and received msg not equal! Received string(%d): %s != %s\n", receivedString.length(),receivedString, MSG);
+			    
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 			
-			/* Compare sent and received message */							
-			if (receivedString.compareTo(MSG) == 0)
-			    System.out.printf("%d bytes sent and received from PORT %d \n", receivedString.length(), socket.getLocalPort());
-			else
-			    System.out.printf("Sent and received msg not equal! Received string(%d): %s != %s\n", receivedString.length(),receivedString, MSG);
-			 
-			
-			/* Delay the execution to have proper message transfer rate (adjust by average transfer time) */
+			/* Check if remaining time is still enough to sleep & send/receive(LATENCY = expected, no RTT taken */
 			if (1000000000 - LATENCY - Duration.between(before, Instant.now()).toNanos() <= 0) { 
 				System.out.printf("Could only sent %d messages of %d. \n",i, transferRateValue);
 				break;
 			}
 			
-			/* calculate sleepTime = time Threads stops execution. Remaining time divided by messages left */
+			/* Thread stops execution. Time = remaining time divided by messages left */
 			LockSupport.parkNanos((1000000000-Duration.between(before, Instant.now()).toNanos())/(transferRateValue-i));
-			
 		}
-		/* time adjustment for nanoseconds */
+		/* Time adjustment for nanoseconds to hit perfectly 1sec */
 		if (Duration.between(before, Instant.now()).toNanos()<1000000000) {
 			LockSupport.parkNanos(1000000000-Duration.between(before, Instant.now()).toNanos());
 		}
-		timePassed = Duration.between(before, Instant.now());
+		Duration timePassed = Duration.between(before, Instant.now());
 		System.out.println("Time taken in nanoseconds: " + timePassed.toNanos());
 		
 		/* close down connection */
@@ -120,5 +68,48 @@ public class TCPEchoClient extends AbstractNetworkingLayer{
 		}
 	    
 	    return timePassed.toNanos();
+	}
+	
+	private String readMessage() throws IOException{
+		String receivedString = "";
+    	buf = new byte[bufSize];
+    	
+    	/* 
+    	 * Read the echoed bytes until the complete message is received (MSG.size reached)
+    	 * Then there should be no more packets left in the underlying window buffer 
+    	 * => available() checks this. (optional)
+    	*/
+		do {
+	        int bytesRead = receivePacket.read(buf);
+	        receivedString += new String(buf, 0, bytesRead);
+	        //System.out.println("received: " +receivedString);
+	    } while(receivedString.length() != MSG.length() || receivePacket.available() != 0);
+		
+		return receivedString;
+	}
+	
+	/* Initializes a socket with the given local, remote end point and the buffer size. */ 
+	private void setupConnection(){
+	    socket = new Socket();
+	    try {
+	    	/* bind to local port */
+	    	socket.bind(localBindPoint);
+	    	/* connect to server IP:PORT */
+			socket.connect(remoteBindPoint);
+			/* set Buffer size */
+		    socket.setReceiveBufferSize(buf.length);
+		    sendPacket = new DataOutputStream(socket.getOutputStream());
+		    receivePacket = new DataInputStream(socket.getInputStream());
+	    } catch (IOException e){
+	    	e.printStackTrace();
+	    }
+	    
+	    /* Set time out in case server is unreachable (E.g. no Server running on port) */
+		try {
+			socket.setSoTimeout(3000);
+		} catch (SocketException e1) {
+			System.err.printf("Timeout Failure: port=%s;ip-address=%s; could not connect to a server.", ((InetSocketAddress) remoteBindPoint).getPort(), ((InetSocketAddress) remoteBindPoint).getAddress());
+			System.exit(1);
+		}
 	}
 }

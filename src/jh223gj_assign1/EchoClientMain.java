@@ -1,22 +1,53 @@
 package jh223gj_assign1;
 
 import java.util.ArrayList;
+import java.util.Scanner;
 
 public class EchoClientMain {
 
 	public static void main(String[] args) {
-		TCPEchoClient client = new TCPEchoClient();
-		// TCPEchoClientTimer client = new TCPEchoClientTimer();
-		//UDPEchoClientTimer client = new UDPEchoClientTimer();
-		//UDPEchoClient client = new UDPEchoClient();
-		//for (int i=0;i<1000;i++) 
-			client.run(args);
-//		args[2] = "10000000";
-//		for (int i=0; i< 65000; i++){
-//			UDPEchoClientTimer.MSG += "a";
-//		}
-//		client.run(args);
-/*
+		AbstractClient client = new TCPEchoClient();
+		//AbstractClient client = new TCPEchoClientTimer();
+		//AbstractClient client = new UDPEchoClientTimer();
+		//AbstractClient client = new UDPEchoClient();
+		
+		int runTimes = 5;
+		
+		Scanner scan = new Scanner(System.in);
+		System.out.println("Normal Mode [N]\nHome Mode [H]\nMessage Transfer Rate Mode [T]\nLocal Mode [L]\nDefault: Normal Mode ");
+		String input = scan.nextLine();
+		switch (input) {
+			case "N" : normalMode(client, args, runTimes);
+				break;
+			case "H" : homeMode(client, args, runTimes);
+				break;
+			case "T" : mtrMode(client, args, runTimes);
+				break;
+			case "L" : localMode(client, args, runTimes);
+			default : normalMode(client, args, runTimes);
+				break;
+		}
+		
+		scan.close();
+
+	}
+	
+	public static void localMode(AbstractClient client, String[] args, int runTimes){
+		args[0] = "127.0.0.1";
+		normalMode(client, args, runTimes);
+	}
+	
+	public static void homeMode(AbstractClient client, String[] args, int runTimes){
+		args[0] = "10.0.0.106";
+		normalMode(client, args, runTimes);
+	}
+	
+	public static void normalMode(AbstractClient client, String[] args, int runTimes){
+		for (int i=0;i<runTimes;i++)  client.run(args);
+	}
+	
+	public static void mtrMode(AbstractClient client, String args[], int runTimes){
+
 		ArrayList<Long> list250 = new ArrayList<Long>();
 		long average250 = 0;
 		ArrayList<Long> list500 = new ArrayList<Long>();
@@ -25,9 +56,6 @@ public class EchoClientMain {
 		long average750 = 0;
 		ArrayList<Long> list1000 = new ArrayList<Long>();
 		long average1000 = 0;
-
-
-		int runTimes = 50;
 		
 		
 		System.out.print("****************************************************************\n");
@@ -67,7 +95,7 @@ public class EchoClientMain {
 		}
 		
 		System.out.print("****************************************************************\n");
-		System.out.print("\t\t\tResults\t\t\t");
+		System.out.print("\t\t\tResults\t\t\t\n");
 		System.out.print("****************************************************************\n");
 		System.out.print("For 250: \n");
 		for (int i=0; i<list250.size();i++){
@@ -106,8 +134,6 @@ public class EchoClientMain {
 			All pausing execution implementations rely on the specific OS and can vary in nanoseconds.
 			However the precision should be good enough.
 		 */
-
-
 	}
 
 }

@@ -1,4 +1,4 @@
-package jh223gj_assign1;
+package mj223gn_jh223gj_assign2;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -9,13 +9,13 @@ import java.net.Socket;
 import java.time.Duration;
 import java.time.Instant;
 
-public class TCPEchoServer {
+public class TCPServer {
 	
 	public static final int BUFSIZE= 1024;
     public static final int MYPORT= 4950;
 	
 	public static void main(String[] args) throws IOException{
-		TCPEchoServer server = new TCPEchoServer();
+		TCPServer server = new TCPServer();
 		server.run(args);
 	}
 	

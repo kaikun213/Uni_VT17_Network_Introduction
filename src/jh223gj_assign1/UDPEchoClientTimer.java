@@ -19,19 +19,24 @@ import java.util.concurrent.locks.LockSupport;
  * @author kaikun
  *
  */
-public class UDPEchoClientTimer extends AbstractNetworkingLayer{
+public class UDPEchoClientTimer extends AbstractClient{
     public static String MSG= "An Echo Message!";
     private DatagramSocket socket = null;
-    DatagramPacket sendPacket;
-    DatagramPacket receivePacket;
+    private DatagramPacket sendPacket;
+    private DatagramPacket receivePacket;
+    private TimerTask task;    		
+    private Timer timer;
+    private Instant before, after;
+    private Duration timePassed;
+    private int messagesSent;
 
 
     public long run(String[] args) {
 	/* Check correct command line input parameters */
-    correctInputs(args);	
+    checkInputs(args);	
     
 	/* Initialize all variables with the command line parameters */
-    initializeVariables(args);
+    setup(args);
     
 	/* Create socket */
 	try {
