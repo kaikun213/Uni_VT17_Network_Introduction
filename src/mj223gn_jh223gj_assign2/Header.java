@@ -2,6 +2,12 @@ package mj223gn_jh223gj_assign2;
 
 import mj223gn_jh223gj_assign2.exceptions.InvalidRequestFormatException;
 
+/** Simple Header class for HTTP
+ * 
+ * @author kaikun
+ *
+ */
+
 public class Header {
 	
 	/* List of all standard HTTP headers - supported ones marked */
