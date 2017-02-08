@@ -1,6 +1,6 @@
 package mj223gn_jh223gj_assign2;
 
-import mj223gn_jh223gj_assign2.exceptions.InvalidRequestException;
+import mj223gn_jh223gj_assign2.exceptions.InvalidRequestFormatException;
 
 public class Header {
 	
@@ -53,12 +53,12 @@ public class Header {
 	}
 	
 	// Format: type:content
-	public static Header fromString(String headerLine) throws InvalidRequestException{
+	public static Header fromString(String headerLine) throws InvalidRequestFormatException{
 		String[] split = headerLine.split(":");
 		
 		/* split header line into type and content */
 		if (split.length != 2){
-			throw new InvalidRequestException("The header format ["+ split +"] is not correct.");
+			throw new InvalidRequestFormatException("The header format ["+ split +"] is not correct.");
 		}
 		
 		/* search corresponded header type */
