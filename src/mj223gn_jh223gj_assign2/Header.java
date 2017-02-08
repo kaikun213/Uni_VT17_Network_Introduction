@@ -1,5 +1,7 @@
 package mj223gn_jh223gj_assign2;
 
+import java.util.Arrays;
+
 import mj223gn_jh223gj_assign2.exceptions.InvalidRequestFormatException;
 
 /** Simple Header class for HTTP
@@ -60,20 +62,20 @@ public class Header {
 	
 	// Format: type:content
 	public static Header fromString(String headerLine) throws InvalidRequestFormatException{
-		String[] split = headerLine.split(":");
-		
+		String[] split = headerLine.split(": ");
+
 		/* split header line into type and content */
 		if (split.length != 2){
-			throw new InvalidRequestFormatException("The header format ["+ split +"] is not correct.");
+			throw new InvalidRequestFormatException("The header format ["+ Arrays.toString(split) +"] is not correct.");
 		}
 		
 		/* search corresponded header type */
 		for (HTTPHeader h : HTTPHeader.values()) {
-			if (h.textFormat.equals(split[0])) new Header(h, split[2]);
+			if (h.textFormat.equals(split[0])) return new Header(h, split[1]);
 		}
 		
 		/* default return */
-		return new Header(HTTPHeader.Unknown, split[2]);
+		return new Header(HTTPHeader.Unknown, split[1]);
 	}
 	
 	private HTTPHeader type;

@@ -1,9 +1,7 @@
 package mj223gn_jh223gj_assign2;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import mj223gn_jh223gj_assign2.Header.HTTPHeader;
 import mj223gn_jh223gj_assign2.exceptions.InvalidRequestFormatException;
@@ -33,11 +31,11 @@ public class HTTPRequest {
 	private Map<Header.HTTPHeader, Header> headers;
 	private String requestBody;
 	
-	public HTTPRequest(Method type, String url, Map<Header.HTTPHeader, Header> headers, String requestBody){
+	public HTTPRequest(Method type, String url, Map<Header.HTTPHeader, Header> headers){
 		this.type = type;
 		this.url = url;
 		this.headers = headers;
-		this.requestBody = requestBody;
+		requestBody = null;
 	}
 	
 	public Method getType() {
@@ -51,21 +49,30 @@ public class HTTPRequest {
 	public String getRequestBody(){
 		return requestBody;
 	}
-
-
-	static String readBody(String body, int contentLength) throws InvalidRequestFormatException{
-		// gives the length of the body in number of octets (8-bit bytes)
-		try {
-			return body.substring(0, contentLength);
-		} catch (IndexOutOfBoundsException e){
-			throw new InvalidRequestFormatException("The Content-Length is not correct. IndexOutOfBounds: ["+body.length()+","+contentLength+"]");
+	
+	public void setRequestBody(String requestBody){
+		this.requestBody = requestBody;
+	}
+	
+	/** Function to get the content length of a request.
+	 * 
+	 * @return Content length in number of chars. If no content is existing it returns 0.
+	 * @throws InvalidRequestFormatException if the Content-Length header has no Integer as value
+	 */
+	public int getContentLength() throws InvalidRequestFormatException{
+		if (headers.containsKey(HTTPHeader.ContentLength)) {
+			try { 
+				return Integer.parseInt(headers.get(HTTPHeader.ContentLength).getContent()); 
+			} catch (NumberFormatException e){
+				throw new InvalidRequestFormatException("ParsingError. Content-Length has to be an Integer.");
+			}
 		}
+		else return 0;
 	}
 	
 	// parse HTTP request from String
 	static HTTPRequest fromString(String request) throws InvalidRequestFormatException{
 		Map<Header.HTTPHeader, Header> headers = new HashMap<Header.HTTPHeader, Header>();
-		int contentLength = 0;
 		
 		// <CR><LF> carriage return and line feed at each end of a line 
 		String[] lines = request.split("\r\n");
@@ -74,23 +81,15 @@ public class HTTPRequest {
 		if (requestLine.length != 3) throw new InvalidRequestFormatException("Invalid format of request line: [" + requestLine + "]");
 
 		// read in all the headers [skip first line => i=1]
-		int lineIndex;
-		for (lineIndex=1; lineIndex<lines.length;lineIndex++){
+		for (int lineIndex=1; lineIndex<lines.length;lineIndex++){
 			if (lines[lineIndex].isEmpty()) break;	// empty line => end of headers (optional message body follows)
 			Header h = Header.fromString(lines[lineIndex]);
 			headers.put(h.getType(), h);
 		}
 		
-		if (headers.containsKey(HTTPHeader.ContentLength)) {
-			try { contentLength = Integer.parseInt(headers.get(HTTPHeader.ContentLength).getContent()); 
-			} catch (NumberFormatException e){
-				throw new InvalidRequestFormatException("ParsingError. Content-Length has to be an Integer.");
-			}
-		}
-		
 		if (!headers.containsKey(HTTPHeader.Host)) throw new InvalidRequestFormatException("Error. No Host Header defined.");
 		
-		return new HTTPRequest(Method.fromString(requestLine[0]), requestLine[1], headers, readBody(Arrays.stream(lines, lineIndex+1, lines.length-1).collect(Collectors.joining()).toString(),contentLength));
+		return new HTTPRequest(Method.fromString(requestLine[0]), requestLine[1], headers);
 	}
 
 }
