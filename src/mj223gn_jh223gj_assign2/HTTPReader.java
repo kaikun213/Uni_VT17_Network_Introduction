@@ -34,7 +34,7 @@ public class HTTPReader {
 			line = in.readLine();
 			if (line == null || line.equals("") || line.equals("\r\n")) break;
 			request.append(line + "\r\n");
-			System.out.println(request);
+			System.out.println(request); // error detection
 		}
 		
 		/* Create HTTP Request */

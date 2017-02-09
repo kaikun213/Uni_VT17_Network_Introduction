@@ -25,7 +25,7 @@ public class Header {
 		Cookie ("Cookie"),
 		ContentLength ("Content-Length"),
 		ContentMD5 ("Content-MD5"),
-		ContentType ("Content-Type"),
+		ContentType ("Content-Type"), 			// supported
 		Date ("Date"),
 		Expect ("Expect"),
 		Forwarded ("Forwarded"),
@@ -47,7 +47,11 @@ public class Header {
 		Upgrade ("Upgrade"),
 		Via ("Via"),
 		Warning ("Warning"),
-		Unknown ("Unknown");					// default case for not included headers
+		Unknown ("Unknown"),					// default case for not included headers
+		
+		// Response specific
+		Server("Server"),
+		LastModified("Last-Modified");
 		
 		private String textFormat;
 		

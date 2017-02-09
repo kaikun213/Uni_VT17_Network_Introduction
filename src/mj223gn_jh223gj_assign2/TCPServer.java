@@ -51,8 +51,6 @@ public class TCPServer {
 	/* Handles client connection */
 	class ConnectionHandler implements Runnable{
 		private Socket connection;
-		private DataOutputStream sendPacket;
-	    private DataInputStream receivePacket;
 	    
 		public ConnectionHandler(Socket connection){ 
 			this.connection = connection;
@@ -73,6 +71,7 @@ public class TCPServer {
 				    System.out.printf(" using port %d", connection.getPort());
 				    System.out.printf(" handled from thread %d; Method-Type: <%s>,", Thread.currentThread().getId(), request.getType());
 				    System.out.printf(" URL: %s\n", request.getUrl());
+				    if (request.getRequestBody() !=  null) System.out.println(" Content: " + request.getRequestBody());
 				    
 					} catch (InvalidRequestFormatException e) {
 						e.printStackTrace();
