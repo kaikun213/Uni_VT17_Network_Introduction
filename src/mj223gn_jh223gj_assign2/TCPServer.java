@@ -8,6 +8,8 @@ import java.net.Socket;
 import java.time.Duration;
 import java.time.Instant;
 
+import org.omg.CORBA.Request;
+
 import mj223gn_jh223gj_assign2.exceptions.InvalidRequestFormatException;
 
 public class TCPServer {
@@ -73,16 +75,18 @@ public class TCPServer {
 				    System.out.printf(" URL: %s\n", request.getUrl());
 				    if (request.getRequestBody() !=  null) System.out.println(" Content: " + request.getRequestBody());
 				    
+				    /* Client wants to close connection */
+				    if (request.closeConnection()) break;
+					else if (connection.getInputStream().read() == -1) break;
+				    
 					} catch (InvalidRequestFormatException e) {
 						e.printStackTrace();
 					}
-				    
-					//if (connection.getInputStream().read() == -1) break;
 
 				}
 				/* Tear down connection and print closing-status */
-				//System.out.printf("TCP Connection from %s using port %d handled by thread %d is closed.\n", connection.getInetAddress().getHostAddress(), connection.getPort(), Thread.currentThread().getId());
-				//connection.close();
+				System.out.printf("TCP Connection from %s using port %d handled by thread %d is closed.\n", connection.getInetAddress().getHostAddress(), connection.getPort(), Thread.currentThread().getId());
+				connection.close();
 			} catch (IOException e){
 				System.out.println(e.getMessage());
 			}
