@@ -96,6 +96,17 @@ public class Header {
 	    private MIMEType(String textFormat){
 	    	this.textFormat = textFormat;
 	    }
+	    
+	    // MIMEType from file extension => Not very good conversion Apache library function
+	    // is a much better solution to pay attention to all the little tricks. However should be in scope
+	    public static MIMEType fromFileName(String fileName){
+	    	// Default type = text/plain
+	    	MIMEType type = MIMEType.txt;
+	    	int index = fileName.lastIndexOf('.');
+	    	// file extension needs to be correct => e.g. js, png, html
+			if (index > 0) type = MIMEType.valueOf(fileName.substring(index+1));
+	    	return type;
+	    }
 	}
 	
 	// Format: type:content

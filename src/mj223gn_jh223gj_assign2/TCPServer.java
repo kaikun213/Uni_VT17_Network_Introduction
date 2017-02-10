@@ -8,8 +8,8 @@ import mj223gn_jh223gj_assign2.exceptions.InvalidRequestFormatException;
 
 public class TCPServer {
 	
-	// Root path of the server to search requested files (URL)
-	public static final String BASEPATH = "/home/kaikun/";
+	// Root path of the server to search requested files (URL) - relative to working directory
+	public static final String BASEPATH = "resources";
 	public static final int BUFSIZE= 1024;
     public static final int MYPORT= 4950;
 	
@@ -55,20 +55,43 @@ public class TCPServer {
 		}
 		@Override
 		public void run() {
+			
+			HTTPResponseFactory factory = new HTTPResponseFactory();
 			try {
 				/* while client stays connected */
-				// FIX => needs a variable for Header Connection: alive/close
+				// TASK : TEST => needs a variable for Header Connection: alive/close
 				while (true) {
 					try {
 					/* Parse HTTP Request from input stream */
 					HTTPReader parser = new HTTPReader(connection.getInputStream());
 					HTTPRequest request = parser.read();
-										
-					/* Print status of connection */
+					
+					HTTPResponse response = factory.getHTTPResponse(request);
+					
+					connection.getOutputStream().write(response.toBytes());
+					/* NICER Solution -> write bytes directly while reading from file as stream (not implemented) 
+					response.toIntStream().map(b -> (byte) b).forEach(b -> {
+						try {
+							connection.getOutputStream().write(b);
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+					});
+					*/
+					
+					/* Print status of request */
 					System.out.printf("TCP echo request from %s", connection.getInetAddress().getHostAddress());
 				    System.out.printf(" using port %d", connection.getPort());
 				    System.out.printf(" handled from thread %d; Method-Type: <%s>,", Thread.currentThread().getId(), request.getType());
 				    System.out.printf(" URL: %s\n", request.getUrl());
+				    if (request.getRequestBody() !=  null) System.out.println(" Content: " + request.getRequestBody());
+				    
+				    /* Print status of response */
+					System.out.printf("TCP echo response from %s", connection.getLocalAddress());
+				    System.out.printf(" using port %d", connection.getLocalPort());
+				    System.out.printf(" Headers: ", response.toString());
+				    System.out.printf(" Content-path: %s\n", response.getResponseBody().toString());
+				    
 				    if (request.getRequestBody() !=  null) System.out.println(" Content: " + request.getRequestBody());
 				    
 				    /* Client wants to close connection */
@@ -76,6 +99,7 @@ public class TCPServer {
 				    
 				    // At the moment all exceptions are caught here -> later in Response fabric/here error code production
 					} catch (Exception e) {
+						/* TASK : READER THROWS UnsupportedMediaTypeException and InvalidRequestFormatException (for to many cases) need to be caught and transformed to proper response code */
 						e.printStackTrace();
 					}
 
