@@ -1,19 +1,15 @@
 package mj223gn_jh223gj_assign2;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.time.Duration;
-import java.time.Instant;
-
-import org.omg.CORBA.Request;
 
 import mj223gn_jh223gj_assign2.exceptions.InvalidRequestFormatException;
 
 public class TCPServer {
 	
+	// Root path of the server to search requested files (URL)
+	public static final String BASEPATH = "/home/kaikun/";
 	public static final int BUFSIZE= 1024;
     public static final int MYPORT= 4950;
 	
@@ -76,10 +72,10 @@ public class TCPServer {
 				    if (request.getRequestBody() !=  null) System.out.println(" Content: " + request.getRequestBody());
 				    
 				    /* Client wants to close connection */
-				    if (request.closeConnection()) break;
-					else if (connection.getInputStream().read() == -1) break;
+				    if (request.closeConnection() || (connection.getInputStream().read() == -1)) break;
 				    
-					} catch (InvalidRequestFormatException e) {
+				    // At the moment all exceptions are caught here -> later in Response fabric/here error code production
+					} catch (Exception e) {
 						e.printStackTrace();
 					}
 

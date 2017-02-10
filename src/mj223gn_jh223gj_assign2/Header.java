@@ -3,6 +3,7 @@ package mj223gn_jh223gj_assign2;
 import java.util.Arrays;
 
 import mj223gn_jh223gj_assign2.exceptions.InvalidRequestFormatException;
+import mj223gn_jh223gj_assign2.exceptions.UnsupportedMediaTypeException;
 
 /** Simple Header class for HTTP
  * 
@@ -64,8 +65,41 @@ public class Header {
 		}
 	}
 	
+	enum MIMEType {
+	    js("application/javascript"),
+	    json("application/json"),
+	    pdf("application/pdf"),
+	    xml("application/xml"),
+	    zip("application/zip"),
+	    mpeg("audio/mpeg"),
+	    css("text/css"),
+	    html("text/html"),
+	    png("image/png"),
+	    jpg("image/jpeg"),
+	    gif("image/gif"),
+	    
+	    // not supported
+//	    vorbis("audio/vorbis"),
+//	    formData("multipart/form-data"),
+//	    xWWW("application/x-www-form-urlencoded"),
+	    
+	    // Default
+	    txt("text/plain");
+
+	    
+	    private String textFormat;
+	    
+	    public String getTextFormat(){
+			return textFormat;
+		}
+	    
+	    private MIMEType(String textFormat){
+	    	this.textFormat = textFormat;
+	    }
+	}
+	
 	// Format: type:content
-	public static Header fromString(String headerLine) throws InvalidRequestFormatException{
+	public static Header fromString(String headerLine) throws InvalidRequestFormatException, UnsupportedMediaTypeException{
 		String[] split = headerLine.split(": ");
 
 		/* split header line into type and content */
@@ -75,7 +109,15 @@ public class Header {
 		
 		/* search corresponded header type */
 		for (HTTPHeader h : HTTPHeader.values()) {
-			if (h.textFormat.equals(split[0])) return new Header(h, split[1]);
+			if (h.textFormat.equals(split[0])) {
+				if (h.equals(HTTPHeader.ContentType)){
+					for (MIMEType m : MIMEType.values()){
+						if (m.textFormat.equals(split[1])) return new Header(h, split[1]);
+					}
+					throw new UnsupportedMediaTypeException("The given media type is not supported by the server!");
+				}
+				else return new Header(h, split[1]);
+			}
 		}
 		
 		/* default return */

@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 
 import mj223gn_jh223gj_assign2.exceptions.InvalidRequestFormatException;
+import mj223gn_jh223gj_assign2.exceptions.UnsupportedMediaTypeException;
 
 public class HTTPReader {
 	
@@ -25,7 +26,7 @@ public class HTTPReader {
 		return requestBody.toString();
 	}
 	
-	public HTTPRequest read() throws IOException, InvalidRequestFormatException{
+	public HTTPRequest read() throws IOException, InvalidRequestFormatException, UnsupportedMediaTypeException{
 		StringBuilder request = new StringBuilder();
 		String line;
 		

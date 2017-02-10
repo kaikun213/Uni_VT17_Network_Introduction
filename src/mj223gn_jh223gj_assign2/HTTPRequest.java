@@ -5,6 +5,7 @@ import java.util.Map;
 
 import mj223gn_jh223gj_assign2.Header.HTTPHeader;
 import mj223gn_jh223gj_assign2.exceptions.InvalidRequestFormatException;
+import mj223gn_jh223gj_assign2.exceptions.UnsupportedMediaTypeException;
 
 /** HTTP Request in the standard format. Reads in the MethodType, URL, HTTPHeaders and RequestBody.
  * 
@@ -81,7 +82,7 @@ public class HTTPRequest {
 	}
 	
 	// parse HTTP request from String
-	static HTTPRequest fromString(String request) throws InvalidRequestFormatException{
+	static HTTPRequest fromString(String request) throws InvalidRequestFormatException, UnsupportedMediaTypeException{
 		Map<Header.HTTPHeader, Header> headers = new HashMap<Header.HTTPHeader, Header>();
 		
 		// <CR><LF> carriage return and line feed at each end of a line 
