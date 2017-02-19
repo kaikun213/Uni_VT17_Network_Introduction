@@ -74,6 +74,7 @@ public class Header {
 	    mpeg("audio/mpeg"),
 	    css("text/css"),
 	    html("text/html"),
+	    htm("text/html"),
 	    png("image/png"),
 	    jpg("image/jpeg"),
 	    gif("image/gif"),
