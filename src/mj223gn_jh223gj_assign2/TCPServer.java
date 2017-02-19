@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
+import java.net.SocketTimeoutException;
 
 import mj223gn_jh223gj_assign2.exceptions.InvalidRequestFormatException;
 
@@ -105,6 +106,8 @@ public class TCPServer {
 				    /* Client wants to close connection */
 				    if (request.closeConnection() || (connection.getInputStream().read() == -1)) break;
 				    
+					} catch (SocketTimeoutException e) {
+						break;
 				    // At the moment all exceptions are caught here -> later in Response fabric/here error code production
 					} catch (Exception e) {
 						/* TASK : READER THROWS UnsupportedMediaTypeException and InvalidRequestFormatException (for to many cases) need to be caught and transformed to proper response code */
