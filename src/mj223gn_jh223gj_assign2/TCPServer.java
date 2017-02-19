@@ -14,7 +14,7 @@ public class TCPServer {
 	public static final String BASEPATH = "resources";
 	public static final int BUFSIZE= 1024;
     public static final int MYPORT= 4950;
-    public static final int TIMEOUT = 15000; 	// 15000 ms
+    public static final int TIMEOUT = 150; 	// 15000 ms
     public static final double HTTPVERSION = 2.0;
 	
 	public static void main(String[] args) throws IOException{
@@ -99,9 +99,11 @@ public class TCPServer {
 					System.out.printf("TCP echo response from %s", connection.getLocalAddress());
 				    System.out.printf(" using port %d", connection.getLocalPort());
 				    System.out.printf(" Headers: ", response.toString());
-				    System.out.printf(" Content-path: %s\n", response.getResponseBody().toString());
-				    
-				    if (request.getRequestBody() !=  null) System.out.println(" Content: " + request.getRequestBody());
+				    /* If Response has a ResponseBody -> Print Status */
+				    if (request.getRequestBody() !=  null) {
+					    System.out.printf(" Content-path: %s\n", response.getResponseBody().toString());
+				    	System.out.println(" Content: " + request.getRequestBody());
+				    }
 				    
 				    /* Client wants to close connection */
 				    if (request.closeConnection() || (connection.getInputStream().read() == -1)) break;

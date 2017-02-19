@@ -1,6 +1,7 @@
 package mj223gn_jh223gj_assign2;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -38,7 +39,7 @@ public class HTTPResponseFactory {
 				response.setResponseBody(file);
 			} catch (ResourceNotFoundException e) {
 				/* TASK: 404 NOT FOUND SHOULD BE RETURNED */
-				return null;
+				return new HTTPResponse(HTTPResponse.HTTPStatus.NotFound, new HashMap<Header.HTTPHeader, Header>());
 			}
 		}
 		
@@ -51,26 +52,22 @@ public class HTTPResponseFactory {
 	 * @return File which is found in the path or index.html/index.htm if the path is pointing to a directory containing this file.
 	 * @throws ResourceNotFoundException thrown if the file or directory does not exist.
 	 */
-	private File getResource(String path) throws ResourceNotFoundException{
+	private File getResource(String path) throws ResourceNotFoundException {
 		File file = null;
-	      try {
-	    	  file = new File(TCPServer.BASEPATH + path);
-	    	  
-	    	  if (!file.exists()) throw new ResourceNotFoundException("No Resource <"+ path + "> could be found.");
+		file = new File(TCPServer.BASEPATH + path);
 
-	    	  /* Path refers to a directory => search for index file */
-	    	  if (file.isDirectory()) {
-	    		  for (File f : file.listFiles()){
-	    			  if (f.getName().equals("index.html") || f.getName().equals("index.htm")){
-	    				  file = f;
-	    			  }
-	    		  }
-	    	  }
-	      } 
-	      catch(Exception e) {
-	    	  e.printStackTrace();
-	      }
-	   return file;
+		if (!file.exists())
+			throw new ResourceNotFoundException("No Resource <" + path + "> could be found.");
+
+		/* Path refers to a directory => search for index file */
+		if (file.isDirectory()) {
+			for (File f : file.listFiles()) {
+				if (f.getName().equals("index.html") || f.getName().equals("index.htm")) {
+					file = f;
+				}
+			}
+		}
+		return file;
 	}
 	
 	/* TASK: NEED TO ADD MORE STANDARD Headers! */

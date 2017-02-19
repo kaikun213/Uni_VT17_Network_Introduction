@@ -57,17 +57,24 @@ public class HTTPResponse {
 	
 	public byte[] toBytes(){
 		byte[] headersInBytes = toString().getBytes();
-		byte[] responseInBytes = new byte[(int) (responseBody.length() + headersInBytes.length)];
-		
-		try {
-			new FileInputStream(responseBody).read(responseInBytes, headersInBytes.length, (int) responseBody.length());
-		} catch (IOException e) {
-			e.printStackTrace();
+		byte[] responseInBytes;
+		/* If response has a body */
+		if (responseBody != null) {
+			responseInBytes = new byte[(int) (responseBody.length() + headersInBytes.length)];
+			/* read bytes from file to end of array */
+			try {
+				new FileInputStream(responseBody).read(responseInBytes, headersInBytes.length, (int) responseBody.length());
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			/* append header bytes in front */
+			for (int i=0; i<headersInBytes.length;i++){
+				responseInBytes[i] = headersInBytes[i];
+			}
+			return responseInBytes;
 		}
-		for (int i=0; i<headersInBytes.length;i++){
-			responseInBytes[i] = headersInBytes[i];
-		}
-		return responseInBytes;
+		/* else return headers only */
+		else return headersInBytes;
 	}
 	
 	/* TASK : NICER SOLUTION THEN CREATING NEW BYTE ARRAY -> Intstream of the bytes from file directly */
