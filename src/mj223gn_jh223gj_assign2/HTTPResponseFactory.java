@@ -34,7 +34,7 @@ public class HTTPResponseFactory {
 				addServerHeaders();
 				
 				/* Create Response */
-				response = new HTTPResponse(HTTPResponse.HTTPStatus.Success, headers);
+				response = new HTTPResponse(HTTPResponse.HTTPStatus.OK, headers);
 				response.setResponseBody(file);
 			} catch (ResourceNotFoundException e) {
 				/* TASK: 404 NOT FOUND SHOULD BE RETURNED */

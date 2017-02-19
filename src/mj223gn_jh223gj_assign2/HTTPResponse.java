@@ -10,7 +10,7 @@ public class HTTPResponse {
 	
 	enum HTTPStatus{
 		// Planned to be supported Response status.
-		Success(200), Created(201), NoContent(204),
+		OK(200), Created(201), NoContent(204),
 		Redirected(303), NotModified(304),	
 		Forbidden(403), NotFound(404), NotAllowed(405), LengthRequired(411), UnsupportedMediaType(415), 
 		InternalServerError(500), NotImplemented(501), HTTPVersionNotSupported(505);
@@ -45,7 +45,7 @@ public class HTTPResponse {
 	public String toString(){
 		StringBuilder responseHeaders = new StringBuilder();
 		// HTTP Status code
-		responseHeaders.append("status" + ": " + status.getStatus() + "\r\n");
+		responseHeaders.append("HTTP/" + TCPServer.HTTPVERSION + " " + status.getStatus() + " " + status + "\r\n");
 
 		// Headers
 		for (Header h : headers.values()){

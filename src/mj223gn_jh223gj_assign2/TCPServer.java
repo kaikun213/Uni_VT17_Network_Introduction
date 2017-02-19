@@ -3,6 +3,7 @@ package mj223gn_jh223gj_assign2;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 
 import mj223gn_jh223gj_assign2.exceptions.InvalidRequestFormatException;
 
@@ -12,6 +13,8 @@ public class TCPServer {
 	public static final String BASEPATH = "resources";
 	public static final int BUFSIZE= 1024;
     public static final int MYPORT= 4950;
+    public static final int TIMEOUT = 15000; 	// 15000 ms
+    public static final double HTTPVERSION = 2.0;
 	
 	public static void main(String[] args) throws IOException{
 		TCPServer server = new TCPServer();
@@ -52,6 +55,11 @@ public class TCPServer {
 	    
 		public ConnectionHandler(Socket connection){ 
 			this.connection = connection;
+			try {
+				this.connection.setSoTimeout(TIMEOUT);
+			} catch (SocketException e) {
+				e.printStackTrace();
+			}
 		}
 		@Override
 		public void run() {
