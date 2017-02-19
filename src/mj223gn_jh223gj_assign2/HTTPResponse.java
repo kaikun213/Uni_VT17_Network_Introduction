@@ -12,7 +12,7 @@ public class HTTPResponse {
 		// Planned to be supported Response status.
 		OK(200), Created(201), NoContent(204),
 		Redirected(303), NotModified(304),	
-		Forbidden(403), NotFound(404), NotAllowed(405), LengthRequired(411), UnsupportedMediaType(415), 
+		BadRequest(400),Forbidden(403), NotFound(404), NotAllowed(405), LengthRequired(411), UnsupportedMediaType(415),
 		InternalServerError(500), NotImplemented(501), HTTPVersionNotSupported(505);
 		
 		private int status;

@@ -5,8 +5,13 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
+import java.util.HashMap;
+import java.util.Map;
 
+import mj223gn_jh223gj_assign2.exceptions.AccessRestrictedException;
 import mj223gn_jh223gj_assign2.exceptions.InvalidRequestFormatException;
+import mj223gn_jh223gj_assign2.exceptions.ResourceNotFoundException;
+import mj223gn_jh223gj_assign2.exceptions.UnsupportedMediaTypeException;
 
 public class TCPServer {
 	
@@ -111,9 +116,18 @@ public class TCPServer {
 					} catch (SocketTimeoutException e) {
 						break;
 				    // At the moment all exceptions are caught here -> later in Response fabric/here error code production
-					} catch (Exception e) {
-						/* TASK : READER THROWS UnsupportedMediaTypeException and InvalidRequestFormatException (for to many cases) need to be caught and transformed to proper response code */
-						e.printStackTrace();
+					} catch (UnsupportedMediaTypeException e) {
+						HTTPResponse response = factory.getErrorResponse(HTTPResponse.HTTPStatus.UnsupportedMediaType);
+						connection.getOutputStream().write(response.toBytes());
+					} catch (InvalidRequestFormatException e){
+						HTTPResponse response = factory.getErrorResponse(HTTPResponse.HTTPStatus.BadRequest);
+						connection.getOutputStream().write(response.toBytes());
+					} catch (ResourceNotFoundException e) {
+						HTTPResponse response = factory.getErrorResponse(HTTPResponse.HTTPStatus.NotFound);
+						connection.getOutputStream().write(response.toBytes());
+					} catch (AccessRestrictedException e) {
+						HTTPResponse response = factory.getErrorResponse(HTTPResponse.HTTPStatus.Forbidden);
+						connection.getOutputStream().write(response.toBytes());
 					}
 
 				}
