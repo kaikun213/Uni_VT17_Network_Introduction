@@ -1,6 +1,8 @@
 package mj223gn_jh223gj_assign2;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -18,7 +20,7 @@ public class HTTPResponseFactory {
 
 	}
 
-	public HTTPResponse getHTTPResponse(HTTPRequest request) throws ResourceNotFoundException, AccessRestrictedException {
+	public HTTPResponse getHTTPResponse(HTTPRequest request) throws ResourceNotFoundException, AccessRestrictedException, FileNotFoundException {
 		HTTPResponse response = null;
 		
 		/* HTTP GET Method -> retrieve a resource */
@@ -49,7 +51,7 @@ public class HTTPResponseFactory {
 	 * @return File which is found in the path or index.html/index.htm if the path is pointing to a directory containing this file.
 	 * @throws ResourceNotFoundException thrown if the file or directory does not exist.
 	 */
-	private File getResource(String path) throws ResourceNotFoundException, AccessRestrictedException {
+	private File getResource(String path) throws ResourceNotFoundException, AccessRestrictedException, FileNotFoundException {
 		File file = null;
 		file = new File(TCPServer.BASEPATH + path);
 
@@ -61,11 +63,39 @@ public class HTTPResponseFactory {
 		}
 		/* Path refers to a directory => search for index file */
 		if (file.isDirectory()) {
-			for (File f : file.listFiles()) {
-				if (f.getName().equals("index.html") || f.getName().equals("index.htm")) {
+			for(File f: file.listFiles()){
+				if(f.getName().contains("index.")){
 					file = f;
 				}
 			}
+			/* If its still is a directory (has not found a index) we create an index page for that folder. */
+			if(!file.isFile()){
+				//Create a new file and a printwriter to write to it.
+				File index = new File(TCPServer.BASEPATH + path +"/index.html");
+				PrintWriter pw = new PrintWriter(index);
+
+				//Simple HTML code for showing the files in the folder.
+				pw.write("<!DOCTYPE html> \n <html> \n <body>");
+
+				for(File f : file.listFiles()){
+					if(!f.getName().contains("index.")) {
+						//if it is a directory we write it in bold.
+						if(f.isDirectory()) {
+							pw.write("<p><strong>" + f.getName() + "</strong></p>\n");
+						}
+						//else standard file.
+						else {
+							pw.write("<p>" + f.getName() + "</p>\n");
+						}
+					}
+				}
+				pw.write("</body> \n </html> \n");
+				pw.close();
+
+				//sets this index page as the response file.
+				file = index;
+			}
+
 		}
 		return file;
 	}
@@ -88,7 +118,7 @@ public class HTTPResponseFactory {
 		File file = new File(DefaultErrorPath + "500.html");
 		HTTPResponse response;
 		headers = new HashMap<Header.HTTPHeader, Header>();
-		System.out.println(status);
+
 		switch (status){
 			case NotFound:
 				file = new File(DefaultErrorPath + "404.html");
