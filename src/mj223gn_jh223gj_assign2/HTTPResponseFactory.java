@@ -2,12 +2,15 @@ package mj223gn_jh223gj_assign2;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 import mj223gn_jh223gj_assign2.Header.HTTPHeader;
+import mj223gn_jh223gj_assign2.Header.MIMEType;
 import mj223gn_jh223gj_assign2.exceptions.AccessRestrictedException;
 import mj223gn_jh223gj_assign2.exceptions.ResourceNotFoundException;
 
@@ -20,16 +23,20 @@ public class HTTPResponseFactory {
 
 	}
 
-	public HTTPResponse getHTTPResponse(HTTPRequest request) throws ResourceNotFoundException, AccessRestrictedException, FileNotFoundException {
+	public HTTPResponse getHTTPResponse(HTTPRequest request) throws ResourceNotFoundException, AccessRestrictedException, IOException {
 		HTTPResponse response = null;
 		
 		/* HTTP GET Method -> retrieve a resource */
-		if (request.getType().equals(HTTPRequest.Method.GET)) {
-
+		if (request.getType().equals(HTTPRequest.Method.GET) || request.getType().equals(HTTPRequest.Method.POST) || (request.getType().equals(HTTPRequest.Method.PUT))) {
+			
+				/* PUT => Updated File */
+				if (request.getType().equals(HTTPRequest.Method.POST))  handlePOST(request.getUrl(), request.getRequestBody(), request.getContentType());
+				else if (request.getType().equals(HTTPRequest.Method.PUT)) 	createOrUpdateResource(request.getUrl(), request.getRequestBody(), request.getContentType());
+					
 				/* GET Requested File */
 				File file = getResource(request.getUrl());
 				
-				/* Add file specific headers Length Header */
+				/* Create Response Headers */
 				headers = new HashMap<Header.HTTPHeader, Header>();
 
 				/* Add Standard Server Headers */
@@ -38,10 +45,45 @@ public class HTTPResponseFactory {
 				/* Create Response */
 				response = new HTTPResponse(HTTPResponse.HTTPStatus.OK, headers);
 				response.setResponseBody(file);
-
+		}
+		return response;
+	}
+	
+	/* POST requests are handled by the server */
+	private void handlePOST(String path, byte[] resource, MIMEType type) throws ResourceNotFoundException, AccessRestrictedException, IOException{
+		File file = new File(TCPServer.BASEPATH + path);
+		/* If file/directory does not exist -> create file in the home directory */
+		if (!file.exists()) createOrUpdateResource("", resource, type);
+		/* If it is a directory -> create file in the given directory */
+		else if (file.isDirectory()) createOrUpdateResource(path, resource, type);
+		/* If it is a file -> update it */
+		else updateResource(path,resource);
+		
+	}
+	
+	private void createOrUpdateResource(String path, byte[] resource, MIMEType type) throws ResourceNotFoundException, AccessRestrictedException, IOException{
+		File file = new File(TCPServer.BASEPATH + path);
+		/* if file in given path does not exist => create it */
+		if (!file.exists()) {
+			/* create the file in the resource folder */
+			file.getParentFile().mkdirs(); 
+			file.createNewFile();
+		}
+		// => If directory then create a new file (hashOfResource.type)
+		if (file.isDirectory()) {
+			file = new File(file.getPath() + "/" + resource.hashCode() + "." + type);
+			file.createNewFile();
 		}
 
-		return response;
+		/* update the existing/created file with new content */
+		updateResource(path, resource);
+	}
+	
+	private void updateResource(String path, byte[] resource) throws ResourceNotFoundException, AccessRestrictedException, IOException{
+		File file = getResource(path);
+		FileOutputStream out = new FileOutputStream(file);
+		out.write(resource);
+		out.close();
 	}
 
 	/**
@@ -52,8 +94,7 @@ public class HTTPResponseFactory {
 	 * @throws ResourceNotFoundException thrown if the file or directory does not exist.
 	 */
 	private File getResource(String path) throws ResourceNotFoundException, AccessRestrictedException, FileNotFoundException {
-		File file = null;
-		file = new File(TCPServer.BASEPATH + path);
+		File file = new File(TCPServer.BASEPATH + path);
 
 		if (!file.exists())
 			throw new ResourceNotFoundException("No Resource <" + path + "> could be found.");

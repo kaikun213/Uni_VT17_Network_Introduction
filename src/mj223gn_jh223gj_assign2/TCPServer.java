@@ -5,8 +5,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
-import java.util.HashMap;
-import java.util.Map;
+import java.time.Duration;
+import java.time.Instant;
 
 import mj223gn_jh223gj_assign2.exceptions.AccessRestrictedException;
 import mj223gn_jh223gj_assign2.exceptions.InvalidRequestFormatException;
@@ -82,16 +82,18 @@ public class TCPServer {
 					
 					HTTPResponse response = factory.getHTTPResponse(request);
 					
+					/* 2x Sending at the moment (inc. performance check) */ 
+					// Sends response as constructed byte array
+					Instant before =  Instant.now();
 					connection.getOutputStream().write(response.toBytes());
-					/* NICER Solution -> write bytes directly while reading from file as stream (not implemented) 
-					response.toIntStream().map(b -> (byte) b).forEach(b -> {
-						try {
-							connection.getOutputStream().write(b);
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
-					});
-					*/
+					System.out.println("PERFORMANCE CHECK: Time for BYTES: " + Duration.between(before, Instant.now()).toNanos());
+
+					// Sends response as constructed stream
+					before = Instant.now();
+					response.getHeaderAsByteArrayOutputStream().writeTo(connection.getOutputStream());
+					if (response.hasResponseBody()) response.getBodyAsByteArrayOutputStream().writeTo(connection.getOutputStream());
+					System.out.println("PERFORMANCE CHECK: Time for STREAM: " + Duration.between(before, Instant.now()).toNanos());
+					
 					
 					/* Print status of request */
 					System.out.printf("TCP echo request from %s", connection.getInetAddress().getHostAddress());
@@ -104,11 +106,6 @@ public class TCPServer {
 					System.out.printf("TCP echo response from %s", connection.getLocalAddress());
 				    System.out.printf(" using port %d", connection.getLocalPort());
 				    System.out.printf(" Headers: ", response.toString());
-				    /* If Response has a ResponseBody -> Print Status */
-				    if (request.getRequestBody() !=  null) {
-					    System.out.printf(" Content-path: %s\n", response.getResponseBody().toString());
-				    	System.out.println(" Content: " + request.getRequestBody());
-				    }
 				    
 				    /* Client wants to close connection */
 				    if (request.closeConnection() || (connection.getInputStream().read() == -1)) break;

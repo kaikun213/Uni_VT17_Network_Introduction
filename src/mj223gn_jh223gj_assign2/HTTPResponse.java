@@ -1,10 +1,10 @@
 package mj223gn_jh223gj_assign2;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Map;
-import java.util.stream.IntStream;
 
 public class HTTPResponse {
 	
@@ -42,6 +42,10 @@ public class HTTPResponse {
 		this.responseBody = responseBody;
 	}
 	
+	public boolean hasResponseBody(){
+		return (responseBody != null);
+	}
+	
 	public String toString(){
 		StringBuilder responseHeaders = new StringBuilder();
 		// HTTP Status code
@@ -76,11 +80,6 @@ public class HTTPResponse {
 		/* else return headers only */
 		else return headersInBytes;
 	}
-	
-	/* TASK : NICER SOLUTION THEN CREATING NEW BYTE ARRAY -> Intstream of the bytes from file directly */
-	public IntStream toIntStream(){
-		return null;
-	}
 
 	public HTTPStatus getStatus() {
 		return status;
@@ -88,6 +87,31 @@ public class HTTPResponse {
 
 	public void setStatus(HTTPStatus status) {
 		this.status = status;
+	}
+	
+	public ByteArrayOutputStream getHeaderAsByteArrayOutputStream() throws IOException{
+		ByteArrayOutputStream stream = new ByteArrayOutputStream();
+		stream.write(toString().getBytes());
+		return stream;
+	}
+	
+	/* Response Body as ByteArrayOutputStream */
+	public ByteArrayOutputStream getBodyAsByteArrayOutputStream() throws IOException{
+		ByteArrayOutputStream stream = new ByteArrayOutputStream();
+
+		/* If a response file exists */
+		if (responseBody != null) {
+			/* read into a byte stream */
+			FileInputStream fis = new FileInputStream(responseBody);
+			byte[] buf = new byte[1024];
+	        for (int readNum; (readNum = fis.read(buf)) != -1;) {
+	            stream.write(buf, 0, readNum);
+	        }
+	        fis.close();
+		}
+		
+		/* returns empty stream if no file exists */
+		return stream;
 	}
 
 }
