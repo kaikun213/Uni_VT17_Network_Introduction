@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import mj223gn_jh223gj_assign2.Header.HTTPHeader;
+import mj223gn_jh223gj_assign2.Header.MIMEType;
 import mj223gn_jh223gj_assign2.exceptions.InvalidRequestFormatException;
 import mj223gn_jh223gj_assign2.exceptions.UnsupportedMediaTypeException;
 
@@ -30,7 +31,7 @@ public class HTTPRequest {
 	private Method type;
 	private String url;
 	private Map<Header.HTTPHeader, Header> headers;
-	private String requestBody;
+	private byte[] requestBody;
 	
 	public HTTPRequest(Method type, String url, Map<Header.HTTPHeader, Header> headers){
 		this.type = type;
@@ -47,11 +48,11 @@ public class HTTPRequest {
 		return url;
 	}
 	
-	public String getRequestBody(){
+	public byte[] getRequestBody(){
 		return requestBody;
 	}
 	
-	public void setRequestBody(String requestBody){
+	public void setRequestBody(byte[] requestBody){
 		this.requestBody = requestBody;
 	}
 	
@@ -79,6 +80,19 @@ public class HTTPRequest {
 			return ("close".equals(headers.get(HTTPHeader.Connection).getContent()));
 		}
 		return true;
+	}
+	
+	public MIMEType getContentType(){
+		MIMEType type = null;
+		if (headers.containsKey(HTTPHeader.ContentType)) {
+				/* conversion from text format to MIMEType enum */
+				for (MIMEType m : Header.MIMEType.values()){
+					if (m.getTextFormat().equals(headers.get(HTTPHeader.ContentType).getContent())){
+						type = m;
+					}
+				}
+		}
+		return type;
 	}
 	
 	// parse HTTP request from String

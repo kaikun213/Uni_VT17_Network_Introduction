@@ -17,13 +17,13 @@ public class HTTPReader {
 		this.in = new BufferedReader(new InputStreamReader(in));
 	}
 	
-	private String readBody() throws InvalidRequestFormatException, IOException{
+	private byte[] readBody() throws InvalidRequestFormatException, IOException{
 		// Content-Length : the length of the body in number of octets (8-bit bytes)
-		StringBuilder requestBody = new StringBuilder();
+		byte[] requestBody = new byte[contentLength];
 		for (int i=0; i<contentLength;i++){
-			requestBody.append((char)(in.read()));
+			requestBody[i] = (byte) in.read();
 		}
-		return requestBody.toString();
+		return requestBody;
 	}
 	
 	public HTTPRequest read() throws IOException, InvalidRequestFormatException, UnsupportedMediaTypeException{
@@ -35,9 +35,11 @@ public class HTTPReader {
 			line = in.readLine();
 			if (line == null || line.equals("") || line.equals("\r\n")) break;
 			request.append(line + "\r\n");
-			System.out.println(request); // error detection
 		}
 		
+		/* error detection -> print out request once */
+		System.out.println(request); 
+
 		/* Create HTTP Request */
 		HTTPRequest result =  HTTPRequest.fromString(request.toString());
 		
