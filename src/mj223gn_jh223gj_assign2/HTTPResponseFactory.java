@@ -28,13 +28,16 @@ public class HTTPResponseFactory {
 		
 		/* HTTP GET Method -> retrieve a resource */
 		if (request.getType().equals(HTTPRequest.Method.GET) || request.getType().equals(HTTPRequest.Method.POST) || (request.getType().equals(HTTPRequest.Method.PUT))) {
+				
+				String filePath = TCPServer.BASEPATH + request.getUrl();
 			
-				/* PUT => Updated File */
-				if (request.getType().equals(HTTPRequest.Method.POST))  handlePOST(request.getUrl(), request.getRequestBody(), request.getContentType());
-				else if (request.getType().equals(HTTPRequest.Method.PUT)) 	createOrUpdateResource(request.getUrl(), request.getRequestBody(), request.getContentType());
+				/* POST => Insert/Update File (up to server) */
+				if (request.getType().equals(HTTPRequest.Method.POST))  handlePOST(filePath, request.getRequestBody(), request.getContentType());
+				/* PUT => Insert/Update File in specified location */
+				else if (request.getType().equals(HTTPRequest.Method.PUT)) 	createOrUpdateResource(filePath, request.getRequestBody(), request.getContentType());
 					
 				/* GET Requested File */
-				File file = getResource(request.getUrl());
+				File file = getResource(filePath);
 				
 				/* Create Response Headers */
 				headers = new HashMap<Header.HTTPHeader, Header>();
@@ -51,7 +54,7 @@ public class HTTPResponseFactory {
 	
 	/* POST requests are handled by the server */
 	private void handlePOST(String path, byte[] resource, MIMEType type) throws ResourceNotFoundException, AccessRestrictedException, IOException{
-		File file = new File(TCPServer.BASEPATH + path);
+		File file = new File(path);
 		/* If file/directory does not exist -> create file in the home directory */
 		if (!file.exists()) createOrUpdateResource("", resource, type);
 		/* If it is a directory -> create file in the given directory */
@@ -62,17 +65,24 @@ public class HTTPResponseFactory {
 	}
 	
 	private void createOrUpdateResource(String path, byte[] resource, MIMEType type) throws ResourceNotFoundException, AccessRestrictedException, IOException{
-		File file = new File(TCPServer.BASEPATH + path);
+		File file = new File(path);
 		/* if file in given path does not exist => create it */
 		if (!file.exists()) {
 			/* create the file in the resource folder */
 			file.getParentFile().mkdirs(); 
 			file.createNewFile();
 		}
+		
 		// => If directory then create a new file (hashOfResource.type)
 		if (file.isDirectory()) {
-			file = new File(file.getPath() + "/" + resource.hashCode() + "." + type);
+			path = path + "/" + resource.hashCode() + "." + type;
+			file = new File(path);
 			file.createNewFile();
+		}
+		// No Ending => append type
+		else if (path.lastIndexOf(".") < 0){
+			path = path + "." + type;
+			file.renameTo(new File(path));
 		}
 
 		/* update the existing/created file with new content */
@@ -94,10 +104,28 @@ public class HTTPResponseFactory {
 	 * @throws ResourceNotFoundException thrown if the file or directory does not exist.
 	 */
 	private File getResource(String path) throws ResourceNotFoundException, AccessRestrictedException, FileNotFoundException {
-		File file = new File(TCPServer.BASEPATH + path);
+		File file = new File(path);
 
-		if (!file.exists())
-			throw new ResourceNotFoundException("No Resource <" + path + "> could be found.");
+		if (!file.exists()) {
+			/* file probably referenced without type ending */
+			
+			/* Subtract parentDirectory and filename from path */
+			int index = path.lastIndexOf(File.separator);
+			String parentDir = path.substring(0,index+1);
+			String fileName = path.substring(index+1);
+
+			if (new File(parentDir).isDirectory()){
+				/* Check through all the files */
+				for (File f : new File(parentDir).listFiles()){
+					if (f.getName().contains(fileName + ".")) {
+						file = f;
+						break;			
+					}
+				}
+			}
+			/* If NOT FOUND => Exception thrown */
+			else if (!file.exists()) throw new ResourceNotFoundException("No Resource <" + path + "> could be found.");
+		}
 
 		if (path.contains("../") || path.contains("/secret")) {
 			throw new AccessRestrictedException("Access restricted");
@@ -112,7 +140,7 @@ public class HTTPResponseFactory {
 			/* If its still is a directory (has not found a index) we create an index page for that folder. */
 			if(!file.isFile()){
 				//Create a new file and a printwriter to write to it.
-				File index = new File(TCPServer.BASEPATH + path +"/index.html");
+				File index = new File(path +"/index.html");
 				PrintWriter pw = new PrintWriter(index);
 
 				//Simple HTML code for showing the files in the folder.
