@@ -35,9 +35,9 @@ public class HTTPResponseFactory {
 				/* Check for request body */
 				if (request.getContentLength() == 0 && !request.getType().equals(HTTPRequest.Method.GET)) throw new InvalidRequestFormatException("POST/PUT Requests need a body! (Chunked Encoding not supported)");
 				/* POST => Insert/Update File (up to server) */
-				else if (request.getType().equals(HTTPRequest.Method.POST))  handlePOST(filePath, request.getRequestBody(), request.getContentType());
+				else if (request.getType().equals(HTTPRequest.Method.POST))  filePath = handlePOST(filePath, request.getRequestBody(), request.getContentType());
 				/* PUT => Insert/Update File in specified location */
-				else if (request.getType().equals(HTTPRequest.Method.PUT)) 	createOrUpdateResource(filePath, request.getRequestBody(), request.getContentType());
+				else if (request.getType().equals(HTTPRequest.Method.PUT))  filePath = createOrUpdateResource(filePath, request.getRequestBody(), request.getContentType());
 					
 				/* GET Requested File */
 				File file = getResource(filePath);
@@ -56,18 +56,18 @@ public class HTTPResponseFactory {
 	}
 	
 	/* POST requests are handled by the server */
-	private void handlePOST(String path, byte[] resource, MIMEType type) throws ResourceNotFoundException, AccessRestrictedException, IOException{
+	private String handlePOST(String path, byte[] resource, MIMEType type) throws ResourceNotFoundException, AccessRestrictedException, IOException{
 		File file = new File(path);
 		/* If file/directory does not exist -> create file in the home directory */
-		if (!file.exists()) createOrUpdateResource("", resource, type);
+		if (!file.exists()) return createOrUpdateResource("", resource, type);
 		/* If it is a directory -> create file in the given directory */
-		else if (file.isDirectory()) createOrUpdateResource(path, resource, type);
+		else if (file.isDirectory()) return createOrUpdateResource(path, resource, type);
 		/* If it is a file -> update it */
-		else updateResource(path,resource);
+		else return updateResource(path,resource);
 		
 	}
 	
-	private void createOrUpdateResource(String path, byte[] resource, MIMEType type) throws ResourceNotFoundException, AccessRestrictedException, IOException{
+	private String createOrUpdateResource(String path, byte[] resource, MIMEType type) throws ResourceNotFoundException, AccessRestrictedException, IOException{
 		File file = new File(path);
 		/* if file in given path does not exist => create it */
 		if (!file.exists()) {
@@ -89,14 +89,15 @@ public class HTTPResponseFactory {
 		}
 
 		/* update the existing/created file with new content */
-		updateResource(path, resource);
+		return updateResource(path, resource);
 	}
 	
-	private void updateResource(String path, byte[] resource) throws ResourceNotFoundException, AccessRestrictedException, IOException{
+	private String updateResource(String path, byte[] resource) throws ResourceNotFoundException, AccessRestrictedException, IOException{
 		File file = getResource(path);
 		FileOutputStream out = new FileOutputStream(file);
 		out.write(resource);
 		out.close();
+		return path;
 	}
 
 	/**
@@ -177,7 +178,8 @@ public class HTTPResponseFactory {
 		headers.put(HTTPHeader.Date, new Header(HTTPHeader.Date, new Date().toString()));
 		headers.put(Header.HTTPHeader.ContentLength, new Header(Header.HTTPHeader.ContentLength, Long.toString(file.length())));
 		headers.put(Header.HTTPHeader.ContentType, new Header(Header.HTTPHeader.ContentType, Header.MIMEType.fromFileName(file.getName()).getTextFormat()));
-
+		String filePath = "localhost:4950"+ file.getPath().replace(TCPServer.BASEPATH, "");
+		headers.put(Header.HTTPHeader.Location, new Header(Header.HTTPHeader.Location, filePath));
 	}
 
 	/**
