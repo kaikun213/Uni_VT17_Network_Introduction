@@ -52,7 +52,8 @@ public class Header {
 		
 		// Response specific
 		Server("Server"),
-		LastModified("Last-Modified");
+		LastModified("Last-Modified"),
+		Location("Location");
 		
 		private String textFormat;
 		
