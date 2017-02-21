@@ -12,6 +12,7 @@ import java.util.Map;
 import mj223gn_jh223gj_assign2.Header.HTTPHeader;
 import mj223gn_jh223gj_assign2.Header.MIMEType;
 import mj223gn_jh223gj_assign2.exceptions.AccessRestrictedException;
+import mj223gn_jh223gj_assign2.exceptions.InvalidRequestFormatException;
 import mj223gn_jh223gj_assign2.exceptions.ResourceNotFoundException;
 
 public class HTTPResponseFactory {
@@ -23,7 +24,7 @@ public class HTTPResponseFactory {
 
 	}
 
-	public HTTPResponse getHTTPResponse(HTTPRequest request) throws ResourceNotFoundException, AccessRestrictedException, IOException {
+	public HTTPResponse getHTTPResponse(HTTPRequest request) throws ResourceNotFoundException, AccessRestrictedException, IOException, InvalidRequestFormatException {
 		HTTPResponse response = null;
 		
 		/* HTTP GET Method -> retrieve a resource */
@@ -31,8 +32,10 @@ public class HTTPResponseFactory {
 				
 				String filePath = TCPServer.BASEPATH + request.getUrl();
 			
+				/* Check for request body */
+				if (request.getContentLength() == 0 && !request.getType().equals(HTTPRequest.Method.GET)) throw new InvalidRequestFormatException("POST/PUT Requests need a body! (Chunked Encoding not supported)");
 				/* POST => Insert/Update File (up to server) */
-				if (request.getType().equals(HTTPRequest.Method.POST))  handlePOST(filePath, request.getRequestBody(), request.getContentType());
+				else if (request.getType().equals(HTTPRequest.Method.POST))  handlePOST(filePath, request.getRequestBody(), request.getContentType());
 				/* PUT => Insert/Update File in specified location */
 				else if (request.getType().equals(HTTPRequest.Method.PUT)) 	createOrUpdateResource(filePath, request.getRequestBody(), request.getContentType());
 					
