@@ -19,7 +19,7 @@ public class TCPServer {
 	public static final String BASEPATH = "resources";
 	public static final int BUFSIZE= 1024;
     public static final int MYPORT= 4950;
-    public static final int TIMEOUT = 150; 	// 15000 ms
+    public static final int TIMEOUT = 15000; 	// 15000 ms
     public static final double HTTPVERSION = 2.0;
 	
 	public static void main(String[] args) throws IOException{
@@ -79,7 +79,6 @@ public class TCPServer {
 					/* Parse HTTP Request from input stream */
 					HTTPReader parser = new HTTPReader(connection.getInputStream());
 					HTTPRequest request = parser.read();
-					
 					HTTPResponse response = factory.getHTTPResponse(request);
 					
 					/* 2x Sending at the moment (inc. performance check) */ 
@@ -111,19 +110,24 @@ public class TCPServer {
 				    if (request.closeConnection() || (connection.getInputStream().read() == -1)) break;
 				    
 					} catch (SocketTimeoutException e) {
+						System.out.println("---- Socket Timeout Exception ----");
 						break;
 				    // At the moment all exceptions are caught here -> later in Response fabric/here error code production
 					} catch (UnsupportedMediaTypeException e) {
 						HTTPResponse response = factory.getErrorResponse(HTTPResponse.HTTPStatus.UnsupportedMediaType);
+						System.out.println("---- Unsupported MediaType Exception ----");
 						connection.getOutputStream().write(response.toBytes());
 					} catch (InvalidRequestFormatException e){
 						HTTPResponse response = factory.getErrorResponse(HTTPResponse.HTTPStatus.BadRequest);
+						System.out.println("---- Bad Request Exception ----");
 						connection.getOutputStream().write(response.toBytes());
 					} catch (ResourceNotFoundException e) {
 						HTTPResponse response = factory.getErrorResponse(HTTPResponse.HTTPStatus.NotFound);
+						System.out.println("---- Not Found Exception ----");
 						connection.getOutputStream().write(response.toBytes());
 					} catch (AccessRestrictedException e) {
 						HTTPResponse response = factory.getErrorResponse(HTTPResponse.HTTPStatus.Forbidden);
+						System.out.println("---- Forbidden Exception ----");
 						connection.getOutputStream().write(response.toBytes());
 					}
 
@@ -132,7 +136,7 @@ public class TCPServer {
 				System.out.printf("TCP Connection from %s using port %d handled by thread %d is closed.\n", connection.getInetAddress().getHostAddress(), connection.getPort(), Thread.currentThread().getId());
 				connection.close();
 			} catch (IOException e){
-				System.out.println(e.getMessage());
+				e.printStackTrace();
 			}
 		}
 		
