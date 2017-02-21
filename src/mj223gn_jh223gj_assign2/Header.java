@@ -81,9 +81,9 @@ public class Header {
 	    gif("image/gif"),
 	    
 	    // not supported
-//	    vorbis("audio/vorbis"),
-//	    formData("multipart/form-data"),
-//	    xWWW("application/x-www-form-urlencoded"),
+	    //vorbis("audio/vorbis"),
+	    //formData("multipart/form-data"),
+	    xWWW("application/x-www-form-urlencoded"),
 	    
 	    // Default
 	    txt("text/plain");
@@ -125,7 +125,7 @@ public class Header {
 			if (h.textFormat.equals(split[0])) {
 				if (h.equals(HTTPHeader.ContentType)){
 					for (MIMEType m : MIMEType.values()){
-						if (m.textFormat.equals(split[1])) return new Header(h, split[1]);
+						if (split[1].contains(m.textFormat)) return new Header(h, split[1]);
 					}
 					throw new UnsupportedMediaTypeException("The given media type is not supported by the server!");
 				}
