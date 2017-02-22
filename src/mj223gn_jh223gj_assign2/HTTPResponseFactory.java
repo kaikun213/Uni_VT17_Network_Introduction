@@ -30,14 +30,20 @@ public class HTTPResponseFactory {
 		
 		/* HTTP GET Method -> retrieve a resource */
 		if (request.getType().equals(HTTPRequest.Method.GET) || request.getType().equals(HTTPRequest.Method.POST) || (request.getType().equals(HTTPRequest.Method.PUT))) {
+
+				/* Content Type of request (for creation of resource) */
+				MIMEType type = request.getContentType();
+				// Only supports PNG from form-data currently.
+				if (request.getContentType() == MIMEType.xWWW) type = MIMEType.png;
+
 				String filePath = TCPServer.BASEPATH + request.getUrl();
 			
 				/* Check for request body */
-				if (request.getContentLength() == 0 && !request.getType().equals(HTTPRequest.Method.GET)) throw new ContentLengthRequiredException("POST/PUT Requests need a body! (Chunked Encoding not supported)");
+				if (request.getContentLength() == 0 && !request.getType().equals(HTTPRequest.Method.GET)) throw new InvalidRequestFormatException("POST/PUT Requests need a body!");
 				/* POST => Insert/Update File (up to server) */
-				else if (request.getType().equals(HTTPRequest.Method.POST))  filePath = handlePOST(filePath, request.getRequestBody(), request.getContentType());
+				else if (request.getType().equals(HTTPRequest.Method.POST))  filePath = handlePOST(filePath, request.getRequestBody(), type);
 				/* PUT => Insert/Update File in specified location */
-				else if (request.getType().equals(HTTPRequest.Method.PUT))  filePath = createOrUpdateResource(filePath, request.getRequestBody(), request.getContentType());
+				else if (request.getType().equals(HTTPRequest.Method.PUT))  filePath = createOrUpdateResource(filePath, request.getRequestBody(), type);
 					
 				/* GET Requested File */
 				File file = getResource(filePath);
@@ -52,6 +58,7 @@ public class HTTPResponseFactory {
 				response = new HTTPResponse(HTTPResponse.HTTPStatus.OK, headers);
 				response.setResponseBody(file);
 		}
+		
 		return response;
 	}
 	
