@@ -6,8 +6,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Base64;
 
-import mj223gn_jh223gj_assign2.exceptions.InvalidRequestFormatException;
-import mj223gn_jh223gj_assign2.exceptions.UnsupportedMediaTypeException;
+import mj223gn_jh223gj_assign2.exceptions.*;
 
 public class HTTPReader {
 	
@@ -26,7 +25,7 @@ public class HTTPReader {
 		}
 		return requestBody;
 	}
-	
+
 	private byte[] readChunkedBody() throws IOException{
 		byte[] requestBody = new byte[0];
 		/* Chunk size given as hex-code */
@@ -101,39 +100,41 @@ public class HTTPReader {
 		/* correct substring build. => Decode and save as requestBody */
 		return Base64.getDecoder().decode(cuttedHeader);
 	}
-	
-	
-	public HTTPRequest read() throws IOException, InvalidRequestFormatException, UnsupportedMediaTypeException{
+
+
+	public HTTPRequest read() throws IOException, UnsupportedMediaTypeException, HTTPMethodNotImplementedException,
+			InvalidRequestFormatException, ContentLengthRequiredException, HTTPVersionIsNotSupportedException, RequestURIToLongException {
+
 		StringBuilder request = new StringBuilder();
 		String line;
-		
+
 		/* Read Headers */
 		while (true){
 			line = in.readLine();
 			if (line == null || line.equals("") || line.equals("\r\n")) break;
 			request.append(line + "\r\n");
 		}
-		
+
 		/* error detection -> print out request once */
-		System.out.println(request); 
+		System.out.println(request);
 
 		/* Create HTTP Request */
 		HTTPRequest result =  HTTPRequest.fromString(request.toString());
-		
+
 		/* Read Request Body (optional) */
 		if ((contentLength = result.getContentLength()) != 0) {
-			// If image/form => base64 decoding 
+			// If image/form => base64 decoding
 			if (result.getContentType().equals(Header.MIMEType.png) || result.getContentType().equals(Header.MIMEType.jpg) || result.getContentType().equals(Header.MIMEType.xWWW)) result.setRequestBody(readBodyBase64());
 			// otherwise raw data
 			else result.setRequestBody(readBody());
 		}
-		
+
 		/* If client sends data in chunks instead of contentLength raw data */
 		if (result.isTransferEncodingChunked()){
 			result.setRequestBody(readChunkedBody());
 		}
-			
-		
+
+
 		return result;
 	}
 
