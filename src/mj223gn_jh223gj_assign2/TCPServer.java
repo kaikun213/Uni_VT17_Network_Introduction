@@ -19,7 +19,7 @@ public class TCPServer {
 	public static final String BASEPATH = "resources";
 	public static final int BUFSIZE= 1024;
     public static final int MYPORT= 4950;
-    public static final int TIMEOUT = 15000; 	// 15000 ms
+    public static final int TIMEOUT = 150; 	// 15000 ms
     public static final double HTTPVERSION = 2.0;
 	
 	public static void main(String[] args) throws IOException{
@@ -99,7 +99,7 @@ public class TCPServer {
 				    System.out.printf(" using port %d", connection.getPort());
 				    System.out.printf(" handled from thread %d; Method-Type: <%s>,", Thread.currentThread().getId(), request.getType());
 				    System.out.printf(" URL: %s\n", request.getUrl());
-				    if (request.getRequestBody() !=  null) System.out.println(" Content: " + request.getRequestBody());
+				    if (request.getRequestBody() !=  null) System.out.println(" Content: " + new String(request.getRequestBody()));
 				    
 				    /* Print status of response */
 					System.out.printf("TCP echo response from %s", connection.getLocalAddress());
@@ -115,19 +115,19 @@ public class TCPServer {
 				    // At the moment all exceptions are caught here -> later in Response fabric/here error code production
 					} catch (UnsupportedMediaTypeException e) {
 						HTTPResponse response = factory.getErrorResponse(HTTPResponse.HTTPStatus.UnsupportedMediaType);
-						System.out.println("---- Unsupported MediaType Exception ----");
+						System.out.println("---- Unsupported MediaType Exception ----\n" + e.getMessage());
 						connection.getOutputStream().write(response.toBytes());
 					} catch (InvalidRequestFormatException e){
 						HTTPResponse response = factory.getErrorResponse(HTTPResponse.HTTPStatus.BadRequest);
-						System.out.println("---- Bad Request Exception ----");
+						System.out.println("---- Bad Request Exception ----\n" + e.getMessage());
 						connection.getOutputStream().write(response.toBytes());
 					} catch (ResourceNotFoundException e) {
 						HTTPResponse response = factory.getErrorResponse(HTTPResponse.HTTPStatus.NotFound);
-						System.out.println("---- Not Found Exception ----");
+						System.out.println("---- Not Found Exception ----\n" + e.getMessage());
 						connection.getOutputStream().write(response.toBytes());
 					} catch (AccessRestrictedException e) {
 						HTTPResponse response = factory.getErrorResponse(HTTPResponse.HTTPStatus.Forbidden);
-						System.out.println("---- Forbidden Exception ----");
+						System.out.println("---- Forbidden Exception ----\n" + e.getMessage());
 						connection.getOutputStream().write(response.toBytes());
 					}
 

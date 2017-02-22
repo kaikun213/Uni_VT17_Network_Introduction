@@ -49,6 +49,7 @@ public class Header {
 		Via ("Via"),
 		Warning ("Warning"),
 		Unknown ("Unknown"),					// default case for not included headers
+		TransferEncoding("Transfer-Encoding"),
 		
 		// Response specific
 		Server("Server"),
