@@ -6,9 +6,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Base64;
 
-import mj223gn_jh223gj_assign2.exceptions.HTTPMethodNotImplementedException;
-import mj223gn_jh223gj_assign2.exceptions.InvalidRequestFormatException;
-import mj223gn_jh223gj_assign2.exceptions.UnsupportedMediaTypeException;
+import mj223gn_jh223gj_assign2.exceptions.*;
 
 public class HTTPReader {
 	
@@ -104,7 +102,8 @@ public class HTTPReader {
 	}
 
 
-	public HTTPRequest read() throws IOException, InvalidRequestFormatException, UnsupportedMediaTypeException, HTTPMethodNotImplementedException {
+	public HTTPRequest read() throws IOException, UnsupportedMediaTypeException, HTTPMethodNotImplementedException,
+			InvalidRequestFormatException, ContentLengthRequiredException, HTTPVersionIsNotSupportedException, RequestURIToLongException {
 
 		StringBuilder request = new StringBuilder();
 		String line;

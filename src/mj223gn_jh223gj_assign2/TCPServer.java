@@ -16,7 +16,7 @@ public class TCPServer {
 	public static final String BASEPATH = "resources";
 	public static final int BUFSIZE= 1024;
     public static final int MYPORT= 4950;
-    public static final int TIMEOUT = 150; 	// 15000 ms
+    public static final int TIMEOUT = 15000; 	// 15000 ms
     public static final double HTTPVERSION = 2.0;
 	
 	public static void main(String[] args) throws IOException{
@@ -77,7 +77,8 @@ public class TCPServer {
 					HTTPReader parser = new HTTPReader(connection.getInputStream());
 					HTTPRequest request = parser.read();
 					HTTPResponse response = factory.getHTTPResponse(request);
-					
+
+						System.out.println("kuk");
 					/* 2x Sending at the moment (inc. performance check) */ 
 					// Sends response as constructed byte array
 					Instant before =  Instant.now();
@@ -114,6 +115,10 @@ public class TCPServer {
 						HTTPResponse response = factory.getErrorResponse(HTTPResponse.HTTPStatus.UnsupportedMediaType);
 						System.out.println("---- Unsupported MediaType Exception ----\n" + e.getMessage());
 						connection.getOutputStream().write(response.toBytes());
+					}catch (HTTPVersionIsNotSupportedException e){
+						HTTPResponse response = factory.getErrorResponse(HTTPResponse.HTTPStatus.HTTPVersionNotSupported);
+						System.out.println("---- HTTP Version Error ----\n" + e.getMessage());
+						connection.getOutputStream().write(response.toBytes());
 					} catch (InvalidRequestFormatException e){
 						HTTPResponse response = factory.getErrorResponse(HTTPResponse.HTTPStatus.BadRequest);
 						System.out.println("---- Bad Request Exception ----\n" + e.getMessage());
@@ -133,6 +138,14 @@ public class TCPServer {
 					} catch (ContentLengthRequiredException e) {
 						HTTPResponse response = factory.getErrorResponse(HTTPResponse.HTTPStatus.LengthRequired);
 						System.out.println("---- Content length required ----");
+						connection.getOutputStream().write(response.toBytes());
+					} catch (RequestURIToLongException e) {
+						HTTPResponse response = factory.getErrorResponse(HTTPResponse.HTTPStatus.URIToLong);
+						System.out.println("---- Request URI to long ----");
+						connection.getOutputStream().write(response.toBytes());
+					}catch (Exception e) {
+						HTTPResponse response = factory.getErrorResponse(HTTPResponse.HTTPStatus.InternalServerError);
+						System.out.println("---- Internal server error 500 ----");
 						connection.getOutputStream().write(response.toBytes());
 					}
 				}
