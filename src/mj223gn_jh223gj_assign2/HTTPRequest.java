@@ -87,12 +87,19 @@ public class HTTPRequest {
 		if (headers.containsKey(HTTPHeader.ContentType)) {
 				/* conversion from text format to MIMEType enum */
 				for (MIMEType m : Header.MIMEType.values()){
-					if (m.getTextFormat().equals(headers.get(HTTPHeader.ContentType).getContent())){
+					if ((headers.get(HTTPHeader.ContentType).getContent().contains(m.getTextFormat()))){
 						type = m;
 					}
 				}
 		}
 		return type;
+	}
+	
+	public boolean isTransferEncodingChunked(){
+		if (headers.containsKey(HTTPHeader.TransferEncoding)){
+			return headers.get(Header.HTTPHeader.TransferEncoding).getContent().equals("chunked");
+		}
+		return false;
 	}
 	
 	// parse HTTP request from String
