@@ -83,9 +83,11 @@ public class Header {
 	    // not supported
 //	    vorbis("audio/vorbis"),
 //	    formData("multipart/form-data"),
-//	    xWWW("application/x-www-form-urlencoded"),
-	    
-	    // Default
+
+		//NEEDED THIS ONE FOR TRYING OUT THE HTTPMethodNotImplementedException, DELETE REQUEST is xWWW.
+	    xWWW("application/x-www-form-urlencoded"),
+
+		// Default
 	    txt("text/plain");
 
 	    

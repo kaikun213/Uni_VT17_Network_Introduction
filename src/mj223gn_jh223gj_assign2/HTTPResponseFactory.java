@@ -12,28 +12,28 @@ import java.util.Map;
 import mj223gn_jh223gj_assign2.Header.HTTPHeader;
 import mj223gn_jh223gj_assign2.Header.MIMEType;
 import mj223gn_jh223gj_assign2.exceptions.AccessRestrictedException;
+import mj223gn_jh223gj_assign2.exceptions.ContentLengthRequiredException;
 import mj223gn_jh223gj_assign2.exceptions.InvalidRequestFormatException;
 import mj223gn_jh223gj_assign2.exceptions.ResourceNotFoundException;
 
 public class HTTPResponseFactory {
 
-	Map<Header.HTTPHeader, Header> headers;
+	private Map<Header.HTTPHeader, Header> headers;
 	private String DefaultErrorPath = TCPServer.BASEPATH + "/errors/";
 
 	public HTTPResponseFactory() {
 
 	}
 
-	public HTTPResponse getHTTPResponse(HTTPRequest request) throws ResourceNotFoundException, AccessRestrictedException, IOException, InvalidRequestFormatException {
+	public HTTPResponse getHTTPResponse(HTTPRequest request) throws ContentLengthRequiredException, InvalidRequestFormatException, IOException, ResourceNotFoundException, AccessRestrictedException {
 		HTTPResponse response = null;
 		
 		/* HTTP GET Method -> retrieve a resource */
 		if (request.getType().equals(HTTPRequest.Method.GET) || request.getType().equals(HTTPRequest.Method.POST) || (request.getType().equals(HTTPRequest.Method.PUT))) {
-				
 				String filePath = TCPServer.BASEPATH + request.getUrl();
 			
 				/* Check for request body */
-				if (request.getContentLength() == 0 && !request.getType().equals(HTTPRequest.Method.GET)) throw new InvalidRequestFormatException("POST/PUT Requests need a body! (Chunked Encoding not supported)");
+				if (request.getContentLength() == 0 && !request.getType().equals(HTTPRequest.Method.GET)) throw new ContentLengthRequiredException("POST/PUT Requests need a body! (Chunked Encoding not supported)");
 				/* POST => Insert/Update File (up to server) */
 				else if (request.getType().equals(HTTPRequest.Method.POST))  filePath = handlePOST(filePath, request.getRequestBody(), request.getContentType());
 				/* PUT => Insert/Update File in specified location */
@@ -226,13 +226,13 @@ public class HTTPResponseFactory {
 				return response;
 			case HTTPVersionNotSupported:
 				file = new File(DefaultErrorPath + "505.html");
-				response = new HTTPResponse(HTTPResponse.HTTPStatus.NotImplemented, headers);
+				response = new HTTPResponse(HTTPResponse.HTTPStatus.HTTPVersionNotSupported, headers);
 				addServerHeaders(file);
 				response.setResponseBody(file);
 				return response;
 			case NotAllowed:
 				file = new File(DefaultErrorPath + "405.html");
-				response = new HTTPResponse(HTTPResponse.HTTPStatus.NotImplemented, headers);
+				response = new HTTPResponse(HTTPResponse.HTTPStatus.NotAllowed, headers);
 				addServerHeaders(file);
 				response.setResponseBody(file);
 				return response;

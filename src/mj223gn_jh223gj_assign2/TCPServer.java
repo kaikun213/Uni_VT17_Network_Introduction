@@ -8,10 +8,7 @@ import java.net.SocketTimeoutException;
 import java.time.Duration;
 import java.time.Instant;
 
-import mj223gn_jh223gj_assign2.exceptions.AccessRestrictedException;
-import mj223gn_jh223gj_assign2.exceptions.InvalidRequestFormatException;
-import mj223gn_jh223gj_assign2.exceptions.ResourceNotFoundException;
-import mj223gn_jh223gj_assign2.exceptions.UnsupportedMediaTypeException;
+import mj223gn_jh223gj_assign2.exceptions.*;
 
 public class TCPServer {
 	
@@ -112,8 +109,8 @@ public class TCPServer {
 					} catch (SocketTimeoutException e) {
 						System.out.println("---- Socket Timeout Exception ----");
 						break;
-				    // At the moment all exceptions are caught here -> later in Response fabric/here error code production
 					} catch (UnsupportedMediaTypeException e) {
+						e.printStackTrace();
 						HTTPResponse response = factory.getErrorResponse(HTTPResponse.HTTPStatus.UnsupportedMediaType);
 						System.out.println("---- Unsupported MediaType Exception ----");
 						connection.getOutputStream().write(response.toBytes());
@@ -129,8 +126,15 @@ public class TCPServer {
 						HTTPResponse response = factory.getErrorResponse(HTTPResponse.HTTPStatus.Forbidden);
 						System.out.println("---- Forbidden Exception ----");
 						connection.getOutputStream().write(response.toBytes());
+					} catch (HTTPMethodNotImplementedException e) {
+						HTTPResponse response = factory.getErrorResponse(HTTPResponse.HTTPStatus.NotImplemented);
+						System.out.println("---- Method not implemented ----");
+						connection.getOutputStream().write(response.toBytes());
+					} catch (ContentLengthRequiredException e) {
+						HTTPResponse response = factory.getErrorResponse(HTTPResponse.HTTPStatus.LengthRequired);
+						System.out.println("---- Content length required ----");
+						connection.getOutputStream().write(response.toBytes());
 					}
-
 				}
 				/* Tear down connection and print closing-status */
 				System.out.printf("TCP Connection from %s using port %d handled by thread %d is closed.\n", connection.getInetAddress().getHostAddress(), connection.getPort(), Thread.currentThread().getId());

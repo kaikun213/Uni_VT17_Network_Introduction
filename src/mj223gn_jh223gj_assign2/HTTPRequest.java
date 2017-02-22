@@ -5,6 +5,7 @@ import java.util.Map;
 
 import mj223gn_jh223gj_assign2.Header.HTTPHeader;
 import mj223gn_jh223gj_assign2.Header.MIMEType;
+import mj223gn_jh223gj_assign2.exceptions.HTTPMethodNotImplementedException;
 import mj223gn_jh223gj_assign2.exceptions.InvalidRequestFormatException;
 import mj223gn_jh223gj_assign2.exceptions.UnsupportedMediaTypeException;
 
@@ -17,13 +18,14 @@ import mj223gn_jh223gj_assign2.exceptions.UnsupportedMediaTypeException;
 public class HTTPRequest {
 	
 	enum Method {
-		GET, POST, PUT, DELETE, HEAD, CONNECT, OPTIONS, TRACE, PATCH;
+		GET, POST, PUT;
+		//, DELETE, HEAD, CONNECT, OPTIONS, TRACE, PATCH;
 		
-		public static Method fromString(String method) throws InvalidRequestFormatException{
+		public static Method fromString(String method) throws HTTPMethodNotImplementedException {
 			try {
 				return Method.valueOf(method);
 			} catch (IllegalArgumentException e){
-				throw new InvalidRequestFormatException("Not supported request method: [" + method + "]");
+				throw new HTTPMethodNotImplementedException(method, ("Not supported request method: [" + method + "]"));
 			}
 		}
 	}
@@ -96,7 +98,7 @@ public class HTTPRequest {
 	}
 	
 	// parse HTTP request from String
-	static HTTPRequest fromString(String request) throws InvalidRequestFormatException, UnsupportedMediaTypeException{
+	static HTTPRequest fromString(String request) throws InvalidRequestFormatException, HTTPMethodNotImplementedException, UnsupportedMediaTypeException {
 		Map<Header.HTTPHeader, Header> headers = new HashMap<Header.HTTPHeader, Header>();
 		
 		// <CR><LF> carriage return and line feed at each end of a line 
