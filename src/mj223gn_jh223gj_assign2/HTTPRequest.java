@@ -72,16 +72,6 @@ public class HTTPRequest {
 		}
 		else return 0;
 	}
-	/** Returns true if the client wants to close the connection.
-	 * 
-	 * @return true if header connection : close is sent. False if connection : alive, keep-alive, upgrade;
-	 */
-	public boolean closeConnection(){
-		if (headers.containsKey(HTTPHeader.Connection)) {
-			return ("close".equals(headers.get(HTTPHeader.Connection).getContent()));
-		}
-		return true;
-	}
 	
 	public MIMEType getContentType(){
 		MIMEType type = null;
@@ -117,7 +107,7 @@ public class HTTPRequest {
 		if(requestLine[1].length() > MAX_NUMBER_OF_CHARACTERS_IN_URI){
 			throw new RequestURIToLongException("Requested URI is to long, sever limit = " + MAX_NUMBER_OF_CHARACTERS_IN_URI + " characters");
 		}
-		/* ******************** METHOD TO CHECK OUR 505 ERROR **************************************
+		/* ******************** METHOD TO CHECK OUR 505 ERROR *************************************
 		if(requestLine[2].equals("HTTP/1.1")){
 			throw new HTTPVersionIsNotSupportedException("HTTP version 1.1 is not supported");
 		}*/

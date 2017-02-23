@@ -15,14 +15,14 @@ var xhrn = null;
 
     reader.onload = function(e){
       $.ajax({
-        method: 'post',
-        url: 'http://localhost:4950/images/',
+        method: 'put',
+        url: 'http://localhost:4950/',
         data: {
           image: e.target.result
         },
         success: function(data){
           console.log(data);
-	  alert('success uploaded to localhost:4950/images/ directory.');
+	  alert('success');
 
         },
         error: function(xhr){

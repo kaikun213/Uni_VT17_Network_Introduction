@@ -1,0 +1,72 @@
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+<form onsubmit="return check()">
+  <input type="file" accept="image/*" name="image">
+  <input type="submit" name="submit" value="upload">
+
+  <div id="topBar"> <a href ="#" onclick="load_files()"> Show list of files </a> </div>
+  <div id="choice"></div>
+</form>
+
+
+<script>
+
+var geturl = null;
+  function check(){
+    var file = document.getElementsByName('image')[0];
+
+    var reader = new FileReader();
+
+    reader.onload = function(e){
+      geturl = $.ajax({
+        method: 'put',
+        url: 'http://localhost:4950/images/',
+        data: {
+          html: e.target.result
+        },
+        success: function(data){
+
+        console.log(geturl.getAllResponseHeaders());
+
+	//var req = new XMLHttpRequest();
+	//req.open('GET', document.location, false);
+	//req.send(null);
+	//var headers = req.getAllResponseHeaders().toLowerCase();
+	//alert(headers);
+	window.location.href = 'http://' + geturl.getResponseHeader('Location');
+
+	alert('Success! Uploaded to localhost:4950/images/directory. Redirecting to the image!');
+
+        },
+        error: function(xhr){
+          console.log(xhr);
+
+
+          alert('error');
+        }
+      })
+    }
+
+    reader.readAsDataURL(file.files[0]);
+    return false;
+  }
+
+var files = null;
+function load_files() {
+	files = $.ajax({
+		method: 'GET',
+		url: 'http://localhost:4950/images/',
+		success: function(data){
+			console.log(files);
+			console.log(data);
+		},
+		error: function(xhr){
+		  console.log(xhr);
+		  alert('error');
+		}
+ 	})
+
+     document.getElementById("choice").innerHTML='<object type="text/html" data="'+ files.responseText + '" ></object>';
+}
+
+</script>
+
