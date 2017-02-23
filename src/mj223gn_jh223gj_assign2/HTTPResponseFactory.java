@@ -55,19 +55,18 @@ public class HTTPResponseFactory {
                     updated = true;
                 }
             }
+            
             /* PUT => Insert/Update File in specified location */
             else if (request.getType().equals(HTTPRequest.Method.PUT)) {
-                int hash = filePath.hashCode();
+            	if (new File(filePath).exists() && !(new File(filePath).isDirectory())) updated = true;
+            	else created = true;
                 filePath = createOrUpdateResource(filePath, request.getRequestBody(), type);
-                if(filePath.hashCode() != hash){
-                    created = true;
-                }
-                else{
-                    updated = true;
-                }
             }
+            
             /* GET Requested File */
             File file = getResource(filePath);
+            
+            System.out.println("**************************" + file.getPath());
 				
             /* Create Response Headers */
             headers = new HashMap<Header.HTTPHeader, Header>();
@@ -76,16 +75,20 @@ public class HTTPResponseFactory {
             addServerHeaders(file);
 				
             /* Create Response */
+            /* 201 - Created */
             if(created){
                 response =  new HTTPResponse(HTTPResponse.HTTPStatus.Created, headers);
             }
-            else if(updated){
+            /* 204 - No Content */
+            else if(file.length() == 0){
                 response =  new HTTPResponse(HTTPResponse.HTTPStatus.NoContent, headers);
             }
+            /* 200 - OK */
             else {
                 response = new HTTPResponse(HTTPResponse.HTTPStatus.OK, headers);
             }
             response.setResponseBody(file);
+
         }
 
         return response;
@@ -146,6 +149,7 @@ public class HTTPResponseFactory {
     private File getResource(String path) throws ResourceNotFoundException, AccessRestrictedException, FileNotFoundException {
         File file = new File(path);
 
+        /* Check if file/dir exists on the server */
         if (!file.exists()) {
 			/* file probably referenced without type ending */
 			
@@ -173,12 +177,7 @@ public class HTTPResponseFactory {
 
 		/* Path refers to a directory => search for index file */
         if (file.isDirectory()) {
-            for (File f : file.listFiles()) {
-                if (f.getName().contains("index.")) {
-                    file = f;
-                }
-            }
-			/* If its still is a directory (has not found a index) we create an index page for that folder. */
+			/* ALWAYS create a new index page for that folder. (even if it exists) */
             if (!file.isFile()) {
                 //Create a new file and a printwriter to write to it.
                 File index = new File(path + "/index.html");
