@@ -133,6 +133,11 @@ public class HTTPReader {
 		if (result.isTransferEncodingChunked()){
 			result.setRequestBody(readChunkedBody());
 		}
+		
+		/* If not POST or PUT request delete the requestBody */
+		if (!(result.getType().equals(HTTPRequest.Method.POST) || result.getType().equals(HTTPRequest.Method.PUT))){
+			result.setRequestBody(null);
+		}
 
 
 		return result;

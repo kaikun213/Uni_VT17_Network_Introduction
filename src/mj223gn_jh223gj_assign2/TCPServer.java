@@ -16,7 +16,7 @@ public class TCPServer {
 	public static final String BASEPATH = "resources";
 	public static final int BUFSIZE= 1024;
     public static final int MYPORT= 4950;
-    public static final int TIMEOUT = 15000; 	// 15000 ms
+    public static final int TIMEOUT = 1500; 	// 15000 ms
     public static final double HTTPVERSION = 2.0;
 	
 	public static void main(String[] args) throws IOException{
@@ -78,15 +78,8 @@ public class TCPServer {
 					HTTPRequest request = parser.read();
 					HTTPResponse response = factory.getHTTPResponse(request);
 
-						System.out.println("kuk");
-					/* 2x Sending at the moment (inc. performance check) */ 
-					// Sends response as constructed byte array
-					Instant before =  Instant.now();
-					connection.getOutputStream().write(response.toBytes());
-					System.out.println("PERFORMANCE CHECK: Time for BYTES: " + Duration.between(before, Instant.now()).toNanos());
-
 					// Sends response as constructed stream
-					before = Instant.now();
+					Instant before = Instant.now();
 					response.getHeaderAsByteArrayOutputStream().writeTo(connection.getOutputStream());
 					if (response.hasResponseBody()) response.getBodyAsByteArrayOutputStream().writeTo(connection.getOutputStream());
 					System.out.println("PERFORMANCE CHECK: Time for STREAM: " + Duration.between(before, Instant.now()).toNanos());
@@ -102,7 +95,7 @@ public class TCPServer {
 				    /* Print status of response */
 					System.out.printf("TCP echo response from %s", connection.getLocalAddress());
 				    System.out.printf(" using port %d", connection.getLocalPort());
-				    System.out.printf(" Headers: ", response.toString());
+				    System.out.printf(" Headers: %s \n", response.toString());
 				    
 				    /* Client wants to close connection */
 				    if (request.closeConnection() || (connection.getInputStream().read() == -1)) break;
@@ -133,19 +126,19 @@ public class TCPServer {
 						connection.getOutputStream().write(response.toBytes());
 					} catch (HTTPMethodNotImplementedException e) {
 						HTTPResponse response = factory.getErrorResponse(HTTPResponse.HTTPStatus.NotImplemented);
-						System.out.println("---- Method not implemented ----");
+						System.out.println("---- Method not implemented ----\n" + e.getMessage());
 						connection.getOutputStream().write(response.toBytes());
 					} catch (ContentLengthRequiredException e) {
 						HTTPResponse response = factory.getErrorResponse(HTTPResponse.HTTPStatus.LengthRequired);
-						System.out.println("---- Content length required ----");
+						System.out.println("---- Content length required ----\n"+ e.getMessage());
 						connection.getOutputStream().write(response.toBytes());
 					} catch (RequestURIToLongException e) {
 						HTTPResponse response = factory.getErrorResponse(HTTPResponse.HTTPStatus.URIToLong);
-						System.out.println("---- Request URI to long ----");
+						System.out.println("---- Request URI to long ----\n" + e.getMessage());
 						connection.getOutputStream().write(response.toBytes());
 					}catch (Exception e) {
 						HTTPResponse response = factory.getErrorResponse(HTTPResponse.HTTPStatus.InternalServerError);
-						System.out.println("---- Internal server error 500 ----");
+						System.out.println("---- Internal server error 500 ----\n" + e.getMessage());
 						connection.getOutputStream().write(response.toBytes());
 					}
 				}

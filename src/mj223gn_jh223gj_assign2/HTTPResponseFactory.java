@@ -185,14 +185,15 @@ public class HTTPResponseFactory {
         return file;
     }
 
-    /* TASK: NEED TO ADD MORE STANDARD Headers! */
-    private void addServerHeaders(File file) {
-        headers.put(HTTPHeader.Date, new Header(HTTPHeader.Date, new Date().toString()));
-        headers.put(Header.HTTPHeader.ContentLength, new Header(Header.HTTPHeader.ContentLength, Long.toString(file.length())));
-        headers.put(Header.HTTPHeader.ContentType, new Header(Header.HTTPHeader.ContentType, Header.MIMEType.fromFileName(file.getName()).getTextFormat()));
-        String filePath = "localhost:4950" + file.getPath().replace(TCPServer.BASEPATH, "");
-        headers.put(Header.HTTPHeader.Location, new Header(Header.HTTPHeader.Location, filePath));
-    }
+	/* TASK: NEED TO ADD MORE STANDARD Headers! */
+	private void addServerHeaders(File file) {
+		headers.put(HTTPHeader.Date, new Header(HTTPHeader.Date, new Date().toString()));
+		headers.put(Header.HTTPHeader.ContentLength, new Header(Header.HTTPHeader.ContentLength, Long.toString(file.length())));
+		headers.put(Header.HTTPHeader.ContentType, new Header(Header.HTTPHeader.ContentType, Header.MIMEType.fromFileName(file.getName()).getTextFormat()));
+		String filePath = "localhost:4950"+ file.getPath().replace(TCPServer.BASEPATH, "");
+		headers.put(Header.HTTPHeader.Location, new Header(Header.HTTPHeader.Location, filePath));
+		headers.put(HTTPHeader.AccessControlOrigin, new Header(Header.HTTPHeader.AccessControlOrigin, filePath));
+	}
 
     /**
      * Creates a Found 302 page with a link to were the resource is found now.

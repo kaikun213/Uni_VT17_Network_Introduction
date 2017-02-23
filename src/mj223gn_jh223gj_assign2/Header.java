@@ -54,7 +54,8 @@ public class Header {
 		// Response specific
 		Server("Server"),
 		LastModified("Last-Modified"),
-		Location("Location");
+		Location("Location"),
+		AccessControlOrigin("Access-Control-Allow-Origin");
 		
 		private String textFormat;
 		

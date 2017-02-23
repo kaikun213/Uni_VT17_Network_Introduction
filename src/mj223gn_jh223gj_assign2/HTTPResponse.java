@@ -53,7 +53,7 @@ public class HTTPResponse {
 
 		// Headers
 		for (Header h : headers.values()){
-			responseHeaders.append(h.getType() + ": " +h.getContent() + "\r\n");
+			responseHeaders.append(h.getType().getTextFormat() + ": " +h.getContent() + "\r\n");
 		}
 		// return Status + an empty line + response content
 		return responseHeaders.toString() + "\r\n";
