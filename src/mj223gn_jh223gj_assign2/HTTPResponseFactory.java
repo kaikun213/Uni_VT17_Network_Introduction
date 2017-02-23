@@ -23,6 +23,8 @@ public class HTTPResponseFactory {
 
     public HTTPResponse getHTTPResponse(HTTPRequest request) throws ContentLengthRequiredException, InvalidRequestFormatException, IOException, ResourceNotFoundException, AccessRestrictedException {
         HTTPResponse response = null;
+        boolean updated = false;
+        boolean created = false;
 
 		/* HTTP GET Method -> retrieve a resource */
         if (request.getType().equals(HTTPRequest.Method.GET) || request.getType().equals(HTTPRequest.Method.POST) || (request.getType().equals(HTTPRequest.Method.PUT))) {
@@ -43,12 +45,27 @@ public class HTTPResponseFactory {
             if (request.getContentLength() == 0 && !request.getType().equals(HTTPRequest.Method.GET))
                 throw new ContentLengthRequiredException("POST/PUT Requests need a body!");
             /* POST => Insert/Update File (up to server) */
-            else if (request.getType().equals(HTTPRequest.Method.POST))
+            else if (request.getType().equals(HTTPRequest.Method.POST)) {
+                int hash = filePath.hashCode();
                 filePath = handlePOST(filePath, request.getRequestBody(), type);
+                if(filePath.hashCode() != hash){
+                    created = true;
+                }
+                else{
+                    updated = true;
+                }
+            }
             /* PUT => Insert/Update File in specified location */
-            else if (request.getType().equals(HTTPRequest.Method.PUT))
+            else if (request.getType().equals(HTTPRequest.Method.PUT)) {
+                int hash = filePath.hashCode();
                 filePath = createOrUpdateResource(filePath, request.getRequestBody(), type);
-					
+                if(filePath.hashCode() != hash){
+                    created = true;
+                }
+                else{
+                    updated = true;
+                }
+            }
             /* GET Requested File */
             File file = getResource(filePath);
 				
@@ -59,7 +76,15 @@ public class HTTPResponseFactory {
             addServerHeaders(file);
 				
             /* Create Response */
-            response =  new HTTPResponse(HTTPResponse.HTTPStatus.OK, headers);
+            if(created){
+                response =  new HTTPResponse(HTTPResponse.HTTPStatus.Created, headers);
+            }
+            else if(updated){
+                response =  new HTTPResponse(HTTPResponse.HTTPStatus.NoContent, headers);
+            }
+            else {
+                response = new HTTPResponse(HTTPResponse.HTTPStatus.OK, headers);
+            }
             response.setResponseBody(file);
         }
 
