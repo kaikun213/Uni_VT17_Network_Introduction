@@ -7,27 +7,36 @@
 
 <script>
 
-var xhrn = null;
+var geturl = null;
   function check(){
     var file = document.getElementsByName('image')[0];
 
     var reader = new FileReader();
 
     reader.onload = function(e){
-      $.ajax({
+      geturl = $.ajax({
         method: 'post',
         url: 'http://localhost:4950/images/',
         data: {
           image: e.target.result
         },
         success: function(data){
-          console.log(data);
-	  alert('success uploaded to localhost:4950/images/ directory.');
+
+        console.log(geturl.getAllResponseHeaders());
+
+	//var req = new XMLHttpRequest();
+	//req.open('GET', document.location, false);
+	//req.send(null);
+	//var headers = req.getAllResponseHeaders().toLowerCase();
+	//alert(headers);
+	window.location.href = 'http://' + geturl.getResponseHeader('Location');
+
+	alert('Success! Uploaded to localhost:4950/images/directory. Redirecting to the image!');
 
         },
         error: function(xhr){
           console.log(xhr);
-	  xhrn = xhr;
+
 
           alert('error');
         }

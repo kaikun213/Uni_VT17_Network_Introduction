@@ -16,7 +16,7 @@ public class TCPServer {
 	public static final String BASEPATH = "resources";
 	public static final int BUFSIZE= 1024;
     public static final int MYPORT= 4950;
-    public static final int TIMEOUT = 1500; 	// 15000 ms
+    public static final int TIMEOUT = 150; 	// 15000 ms
     public static final double HTTPVERSION = 2.0;
 	
 	public static void main(String[] args) throws IOException{
@@ -58,22 +58,24 @@ public class TCPServer {
 	    
 		public ConnectionHandler(Socket connection){ 
 			this.connection = connection;
-//			try {
-//				this.connection.setSoTimeout(TIMEOUT);
-//			} catch (SocketException e) {
-//				e.printStackTrace();
-//			}
+			try {
+				this.connection.setSoTimeout(TIMEOUT);
+			} catch (SocketException e) {
+				e.printStackTrace();
+			}
 		}
 		@Override
 		public void run() {
 			
 			HTTPResponseFactory factory = new HTTPResponseFactory();
+
 			try {
+				HTTPReader parser = new HTTPReader(connection.getInputStream());
+
 				/* while client stays connected */
-				//while (true) {
+				while (true) {
 					try {
 					/* Parse HTTP Request from input stream */
-					HTTPReader parser = new HTTPReader(connection.getInputStream());
 					HTTPRequest request = parser.read();
 					HTTPResponse response = factory.getHTTPResponse(request);
 
@@ -97,10 +99,10 @@ public class TCPServer {
 				    System.out.printf(" Headers: %s \n", response.toString());
 				    
 				    /* Client wants to close connection */
-//				    if (request.closeConnection() || (connection.getInputStream().read() == -1)) break;
+				    if (request.closeConnection() || (connection.getInputStream().read() == -1)) break;
 				    
-//					} catch (SocketTimeoutException e) {
-//						break;
+					} catch (SocketTimeoutException e) {
+						break;
 					} catch (UnsupportedMediaTypeException e) {
 						e.printStackTrace();
 						HTTPResponse response = factory.getErrorResponse(HTTPResponse.HTTPStatus.UnsupportedMediaType);
@@ -139,7 +141,7 @@ public class TCPServer {
 						System.out.println("---- Internal server error 500 ----\n" + e.getMessage());
 						connection.getOutputStream().write(response.toBytes());
 					}
-				//}
+				}
 				/* Tear down connection and print closing-status */
 				System.out.printf("TCP Connection from %s using port %d handled by thread %d is closed.\n", connection.getInetAddress().getHostAddress(), connection.getPort(), Thread.currentThread().getId());
 				connection.close();
