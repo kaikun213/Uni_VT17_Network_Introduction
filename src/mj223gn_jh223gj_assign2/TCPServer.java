@@ -70,7 +70,6 @@ public class TCPServer {
 			HTTPResponseFactory factory = new HTTPResponseFactory();
 			try {
 				/* while client stays connected */
-				// TASK : TEST => needs a variable for Header Connection: alive/close
 				while (true) {
 					try {
 					/* Parse HTTP Request from input stream */

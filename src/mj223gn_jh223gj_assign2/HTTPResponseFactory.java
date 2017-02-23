@@ -166,11 +166,11 @@ public class HTTPResponseFactory {
                     if (!f.getName().contains("index.")) {
                         //if it is a directory we write it in bold.
                         if (f.isDirectory()) {
-                            pw.write("<p><strong>" + f.getName() + "</strong></p>\n");
+                            pw.write("<p><a href=\"localhost:4950/"+ f.getName()+"\">" + f.getName() + "</a></p>\n");
                         }
                         //else standard file.
                         else {
-                            pw.write("<p>" + f.getName() + "</p>\n");
+                            pw.write("<p><a href=\"localhost:4950/"+  f.getName()+"\">" + f.getName() + "</a></p>\n");
                         }
                     }
                 }
