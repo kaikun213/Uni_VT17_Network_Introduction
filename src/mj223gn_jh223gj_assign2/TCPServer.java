@@ -102,7 +102,6 @@ public class TCPServer {
 //					} catch (SocketTimeoutException e) {
 //						break;
 					} catch (UnsupportedMediaTypeException e) {
-						e.printStackTrace();
 						HTTPResponse response = factory.getErrorResponse(HTTPResponse.HTTPStatus.UnsupportedMediaType);
 						System.out.println("---- Unsupported MediaType Exception ----\n" + e.getMessage());
 						connection.getOutputStream().write(response.toBytes());
