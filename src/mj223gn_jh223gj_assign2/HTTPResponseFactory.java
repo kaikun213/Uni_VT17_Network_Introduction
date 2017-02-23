@@ -23,7 +23,6 @@ public class HTTPResponseFactory {
 
     public HTTPResponse getHTTPResponse(HTTPRequest request) throws ContentLengthRequiredException, InvalidRequestFormatException, IOException, ResourceNotFoundException, AccessRestrictedException {
         HTTPResponse response = null;
-        boolean updated = false;
         boolean created = false;
 
 		/* HTTP GET Method -> retrieve a resource */
@@ -47,17 +46,14 @@ public class HTTPResponseFactory {
             else if (request.getType().equals(HTTPRequest.Method.POST)) {
                 int hash = filePath.hashCode();
                 filePath = handlePOST(filePath, request.getRequestBody(), type);
+                /* check if file path changed (file got created or updated) */
                 if(filePath.hashCode() != hash){
                     created = true;
                 }
-                else{
-                    updated = true;
-                }
             }
-            
             /* PUT => Insert/Update File in specified location */
             else if (request.getType().equals(HTTPRequest.Method.PUT)) {
-            	if (new File(filePath).exists() && !(new File(filePath).isDirectory())) updated = true;
+            	if (new File(filePath).exists() && !(new File(filePath).isDirectory())) created = false;
             	else created = true;
                 filePath = createOrUpdateResource(filePath, request.getRequestBody(), type);
             }
