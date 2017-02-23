@@ -189,14 +189,14 @@ public class HTTPResponseFactory {
 
                 for (File f : file.listFiles()) {
                     if (!f.getName().contains("index.")) {
-                        //if it is a directory we write it in bold.
-                        if (f.isDirectory()) {
-                            pw.write("<p><a href=\"localhost:4950/"+ f.getName()+"\">" + f.getName() + "</a></p>\n");
-                        }
-                        //else standard file.
-                        else {
-                            pw.write("<p><a href=\"localhost:4950/"+  f.getName()+"\">" + f.getName() + "</a></p>\n");
-                        }
+                    	// link address of resource 
+                    	if (path.equals(TCPServer.BASEPATH+"/") )pw.write("<p><a href=\"http://localhost:4950/" + f.getName()+"\">" );
+                    	// if not base directory -> slash is missing
+                    	else pw.write("<p><a href=\"http://localhost:4950/" + path.replace(TCPServer.BASEPATH+"/", "")+ "/" + f.getName()+"\">" );
+                        // name of the file (clickable)
+                    	pw.write(f.getName());
+                    	// finish link tag
+                        pw.write("</a></p>\n");
                     }
                 }
                 pw.write("</body> \n </html> \n");
