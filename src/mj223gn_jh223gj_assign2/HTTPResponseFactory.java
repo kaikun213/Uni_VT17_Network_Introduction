@@ -40,7 +40,6 @@ public class HTTPResponseFactory {
             if(request.getUrl().equals("/test.jpg")){
                 return this.createFoundResponse(HTTPResponse.HTTPStatus.Found);
             }
-
             /* Check for request body */
             if (request.getContentLength() == 0 && !request.getType().equals(HTTPRequest.Method.GET))
                 throw new ContentLengthRequiredException("POST/PUT Requests need a body!");

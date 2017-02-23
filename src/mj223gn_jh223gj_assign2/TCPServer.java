@@ -82,8 +82,8 @@ public class TCPServer {
 					response.getHeaderAsByteArrayOutputStream().writeTo(connection.getOutputStream());
 					if (response.hasResponseBody()) response.getBodyAsByteArrayOutputStream().writeTo(connection.getOutputStream());
 					System.out.println("PERFORMANCE CHECK: Time for STREAM: " + Duration.between(before, Instant.now()).toNanos());
-					
-					
+
+
 					/* Print status of request */
 					System.out.printf("TCP echo request from %s", connection.getInetAddress().getHostAddress());
 				    System.out.printf(" using port %d", connection.getPort());
