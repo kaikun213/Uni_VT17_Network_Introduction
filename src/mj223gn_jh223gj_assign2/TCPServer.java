@@ -84,8 +84,8 @@ public class TCPServer {
 					response.getHeaderAsByteArrayOutputStream().writeTo(connection.getOutputStream());
 					if (response.hasResponseBody()) response.getBodyAsByteArrayOutputStream().writeTo(connection.getOutputStream());
 					System.out.println("PERFORMANCE CHECK: Time for STREAM: " + Duration.between(before, Instant.now()).toNanos());
-					
-					
+
+
 					/* Print status of request */
 					System.out.printf("TCP echo request from %s", connection.getInetAddress().getHostAddress());
 				    System.out.printf(" using port %d", connection.getPort());
@@ -104,7 +104,6 @@ public class TCPServer {
 					} catch (SocketTimeoutException e) {
 						break;
 					} catch (UnsupportedMediaTypeException e) {
-						e.printStackTrace();
 						HTTPResponse response = factory.getErrorResponse(HTTPResponse.HTTPStatus.UnsupportedMediaType);
 						System.out.println("---- Unsupported MediaType Exception ----\n" + e.getMessage());
 						connection.getOutputStream().write(response.toBytes());

@@ -39,10 +39,10 @@ public class HTTPResponseFactory {
             if(request.getUrl().equals("/test.jpg")){
                 return this.createFoundResponse(HTTPResponse.HTTPStatus.Found);
             }
-
             /* Check for request body */
             if (request.getContentLength() == 0 && !request.getType().equals(HTTPRequest.Method.GET))
                 throw new ContentLengthRequiredException("POST/PUT Requests need a body!");
+
             /* POST => Insert/Update File (up to server) */
             else if (request.getType().equals(HTTPRequest.Method.POST)) {
                 int hash = filePath.hashCode();
@@ -278,6 +278,12 @@ public class HTTPResponseFactory {
             case NotFound:
                 file = new File(DefaultErrorPath + "404.html");
                 response = new HTTPResponse(HTTPResponse.HTTPStatus.NotFound, headers);
+                addServerHeaders(file);
+                response.setResponseBody(file);
+                return response;
+            case LengthRequired:
+                file = new File(DefaultErrorPath + "411.html");
+                response = new HTTPResponse(HTTPResponse.HTTPStatus.LengthRequired, headers);
                 addServerHeaders(file);
                 response.setResponseBody(file);
                 return response;
