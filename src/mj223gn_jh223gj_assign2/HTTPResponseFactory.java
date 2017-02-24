@@ -61,9 +61,7 @@ public class HTTPResponseFactory {
             
             /* GET Requested File */
             File file = getResource(filePath);
-            
-            System.out.println("**************************" + file.getPath());
-				
+            				
             /* Create Response Headers */
             headers = new HashMap<Header.HTTPHeader, Header>();
 
@@ -148,7 +146,7 @@ public class HTTPResponseFactory {
         /* Check if file/dir exists on the server */
         if (!file.exists()) {
 			/* file probably referenced without type ending */
-			
+        				
 			/* Subtract parentDirectory and filename from path */
             int index = path.lastIndexOf(File.separator);
             String parentDir = path.substring(0, index + 1);
@@ -164,7 +162,7 @@ public class HTTPResponseFactory {
                 }
             }
 			/* If NOT FOUND => Exception thrown */
-            else if (!file.exists()) throw new ResourceNotFoundException("No Resource <" + path + "> could be found.");
+            if (!file.exists()) throw new ResourceNotFoundException("No Resource <" + path + "> could be found.");
         }
 
         if (path.contains("../") || path.contains("/secret")) {

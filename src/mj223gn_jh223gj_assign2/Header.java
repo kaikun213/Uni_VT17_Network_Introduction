@@ -80,7 +80,7 @@ public class Header {
 	    htm("text/html"),
 	    png("image/png"),
 	    jpg("image/jpeg"),
-	    //gif("image/gif"),
+	    gif("image/gif"),
 	    
 	    // not supported
 
