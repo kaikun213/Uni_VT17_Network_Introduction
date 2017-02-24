@@ -3,7 +3,6 @@ package mj223gn_jh223gj_assign2;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.time.Duration;
 import java.time.Instant;
