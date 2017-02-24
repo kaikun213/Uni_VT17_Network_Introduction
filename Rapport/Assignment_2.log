@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016/W32TeX) (preloaded format=pdflatex 2016.9.14)  24 FEB 2017 11:12
+This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016/W32TeX) (preloaded format=pdflatex 2016.9.14)  24 FEB 2017 14:42
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -877,13 +877,13 @@ LaTeX Info: Redefining \nameref on input line 105.
 
 LaTeX Warning: No \author given.
 
-<img/lnu_etch.png, id=24, 875.27pt x 1061.9675pt>
+<img/lnu_etch.png, id=28, 875.27pt x 1061.9675pt>
 File: img/lnu_etch.png Graphic file (type png)
  <use img/lnu_etch.png>
 Package pdftex.def Info: img/lnu_etch.png used on input line 111.
 (pdftex.def)             Requested size: 262.58302pt x 318.5927pt.
 
-<img/logo.png, id=26, 615.29875pt x 825.0825pt>
+<img/logo.png, id=30, 615.29875pt x 825.0825pt>
 File: img/logo.png Graphic file (type png)
  <use img/logo.png>
 Package pdftex.def Info: img/logo.png used on input line 111.
@@ -911,38 +911,38 @@ l.119 \newpage
                [1
 
 
-] <img/Directory.jpg, id=46, 1051.67906pt x 722.7pt>
+] <img/Directory.jpg, id=51, 1051.67906pt x 722.7pt>
 File: img/Directory.jpg Graphic file (type jpg)
 
 <use img/Directory.jpg>
 Package pdftex.def Info: img/Directory.jpg used on input line 137.
 (pdftex.def)             Requested size: 405.45047pt x 278.6208pt.
- <img/HTMLFile.jpg, id=47, 807.015pt x 717.43031pt>
+ <img/HTMLFile.jpg, id=52, 807.015pt x 717.43031pt>
 File: img/HTMLFile.jpg Graphic file (type jpg)
 
 <use img/HTMLFile.jpg>
 Package pdftex.def Info: img/HTMLFile.jpg used on input line 144.
 (pdftex.def)             Requested size: 405.45047pt x 360.44391pt.
- <img/PNGFile.jpg, id=48, 1445.4pt x 784.43062pt>
+ <img/PNGFile.jpg, id=53, 1445.4pt x 784.43062pt>
 File: img/PNGFile.jpg Graphic file (type jpg)
 
 <use img/PNGFile.jpg>
 Package pdftex.def Info: img/PNGFile.jpg used on input line 151.
 (pdftex.def)             Requested size: 405.45047pt x 220.03406pt.
  [1 <./img/Directory.jpg>] [2 <./img/HTMLFile.jpg> <./img/PNGFile.jpg>] <img/40
-3.jpg, id=60, 621.82312pt x 340.27126pt>
+3.jpg, id=65, 621.82312pt x 340.27126pt>
 File: img/403.jpg Graphic file (type jpg)
 
 <use img/403.jpg>
 Package pdftex.def Info: img/403.jpg used on input line 161.
 (pdftex.def)             Requested size: 384.1096pt x 210.19237pt.
- <img/404.jpg, id=61, 670.00313pt x 290.58563pt>
+ <img/404.jpg, id=66, 670.00313pt x 290.58563pt>
 File: img/404.jpg Graphic file (type jpg)
 
 <use img/404.jpg>
 Package pdftex.def Info: img/404.jpg used on input line 168.
 (pdftex.def)             Requested size: 384.1096pt x 166.58882pt.
- <img/500.jpg, id=62, 609.02531pt x 271.76532pt>
+ <img/500.jpg, id=67, 609.02531pt x 271.76532pt>
 File: img/500.jpg Graphic file (type jpg)
 
 <use img/500.jpg>
@@ -952,64 +952,64 @@ Package pdftex.def Info: img/500.jpg used on input line 175.
 LaTeX Font Info:    Font shape `T1/ptm/bx/n' in size <14.4> not available
 (Font)              Font shape `T1/ptm/b/n' tried instead on input line 180.
 
-<img/201.jpg, id=70, 1082.54437pt x 260.47313pt>
+<img/201.jpg, id=75, 1082.54437pt x 260.47313pt>
 File: img/201.jpg Graphic file (type jpg)
  <use img/201.jpg>
-Package pdftex.def Info: img/201.jpg used on input line 185.
+Package pdftex.def Info: img/201.jpg used on input line 187.
 (pdftex.def)             Requested size: 405.45047pt x 97.55397pt.
 
-<img/204.jpg, id=71, 1025.33063pt x 398.99063pt>
+<img/204.jpg, id=76, 1025.33063pt x 398.99063pt>
 File: img/204.jpg Graphic file (type jpg)
  <use img/204.jpg>
-Package pdftex.def Info: img/204.jpg used on input line 192.
+Package pdftex.def Info: img/204.jpg used on input line 194.
 (pdftex.def)             Requested size: 405.45047pt x 157.77307pt.
 
-<img/302.jpg, id=72, 1249.66875pt x 589.4522pt>
+<img/302.jpg, id=77, 1249.66875pt x 589.4522pt>
 File: img/302.jpg Graphic file (type jpg)
  <use img/302.jpg>
-Package pdftex.def Info: img/302.jpg used on input line 199.
+Package pdftex.def Info: img/302.jpg used on input line 201.
 (pdftex.def)             Requested size: 405.45047pt x 191.2459pt.
 
-<img/411.jpg, id=73, 609.02531pt x 277.78781pt>
+<img/411.jpg, id=78, 609.02531pt x 277.78781pt>
 File: img/411.jpg Graphic file (type jpg)
  <use img/411.jpg>
-Package pdftex.def Info: img/411.jpg used on input line 206.
+Package pdftex.def Info: img/411.jpg used on input line 208.
 (pdftex.def)             Requested size: 405.45047pt x 184.93849pt.
 
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
-<img/414.jpg, id=74, 691.08188pt x 266.49562pt>
+<img/414.jpg, id=79, 691.08188pt x 266.49562pt>
 File: img/414.jpg Graphic file (type jpg)
  <use img/414.jpg>
-Package pdftex.def Info: img/414.jpg used on input line 213.
+Package pdftex.def Info: img/414.jpg used on input line 215.
 (pdftex.def)             Requested size: 405.45047pt x 156.3527pt.
 
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
-<img/415.jpg, id=75, 489.32813pt x 281.55188pt>
+<img/415.jpg, id=80, 489.32813pt x 281.55188pt>
 File: img/415.jpg Graphic file (type jpg)
  <use img/415.jpg>
-Package pdftex.def Info: img/415.jpg used on input line 220.
+Package pdftex.def Info: img/415.jpg used on input line 222.
 (pdftex.def)             Requested size: 405.45047pt x 233.29274pt.
 
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
-<img/501.jpg, id=76, 875.52094pt x 365.11406pt>
+<img/501.jpg, id=81, 875.52094pt x 365.11406pt>
 File: img/501.jpg Graphic file (type jpg)
  <use img/501.jpg>
-Package pdftex.def Info: img/501.jpg used on input line 227.
+Package pdftex.def Info: img/501.jpg used on input line 229.
 (pdftex.def)             Requested size: 405.45047pt x 169.08545pt.
 
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
-<img/505.jpg, id=77, 590.205pt x 259.7203pt>
+<img/505.jpg, id=82, 590.205pt x 259.7203pt>
 File: img/505.jpg Graphic file (type jpg)
  <use img/505.jpg>
-Package pdftex.def Info: img/505.jpg used on input line 234.
+Package pdftex.def Info: img/505.jpg used on input line 236.
 (pdftex.def)             Requested size: 405.45047pt x 178.42252pt.
 
 
@@ -1017,37 +1017,32 @@ LaTeX Warning: `!h' float specifier changed to `!ht'.
 
 [4 <./img/201.jpg> <./img/204.jpg> <./img/302.jpg>] [5 <./img/411.jpg> <./img/4
 14.jpg> <./img/415.jpg>] [6 <./img/501.jpg> <./img/505.jpg>]
+<img/TEXT.jpg, id=106, 603.75563pt x 322.20375pt>
+File: img/TEXT.jpg Graphic file (type jpg)
+ <use img/TEXT.jpg>
+Package pdftex.def Info: img/TEXT.jpg used on input line 257.
+(pdftex.def)             Requested size: 405.45047pt x 216.37195pt.
 
-LaTeX Warning: Citation `TEXT' on page 7 undefined on input line 251.
-
-
-LaTeX Warning: Citation `IMAGE' on page 7 undefined on input line 251.
-
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 255.
-[7]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 255.
+<img/IMAGE.jpg, id=107, 849.1725pt x 506.6428pt>
+File: img/IMAGE.jpg Graphic file (type jpg)
+ <use img/IMAGE.jpg>
+Package pdftex.def Info: img/IMAGE.jpg used on input line 264.
+(pdftex.def)             Requested size: 405.45047pt x 241.90248pt.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 269.
+ [7 <./img/TEXT.jpg> <./img/IMAGE.jpg>]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 269.
  (./Assignment_2.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 255.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 255.
-
-
-Package rerunfilecheck Warning: File `Assignment_2.out' has changed.
-(rerunfilecheck)                Rerun to get outlines right
-(rerunfilecheck)                or use package `bookmark'.
-
-Package rerunfilecheck Info: Checksums for `Assignment_2.out':
-(rerunfilecheck)             Before: C737E4073C6C681192A8DE839F777226;295
-(rerunfilecheck)             After:  E486EEB3B5CB270D762EA24ACABFF894;343.
-
-LaTeX Warning: There were undefined references.
-
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 255.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 269.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 269.
+Package rerunfilecheck Info: File `Assignment_2.out' has not changed.
+(rerunfilecheck)             Checksum: E486EEB3B5CB270D762EA24ACABFF894;343.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 269.
  ) 
 Here is how much of TeX's memory you used:
- 10115 strings out of 493013
- 145426 string characters out of 6136993
- 260953 words of memory out of 5000000
- 13455 multiletter control sequences out of 15000+600000
+ 10128 strings out of 493013
+ 145624 string characters out of 6136993
+ 261144 words of memory out of 5000000
+ 13464 multiletter control sequences out of 15000+600000
  34694 words of font info for 53 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  37i,12n,39p,919b,408s stack positions out of 5000i,500n,10000p,200000b,80000s
@@ -1055,10 +1050,10 @@ Here is how much of TeX's memory you used:
 f-dist/fonts/type1/urw/times/utmb8a.pfb><c:/texlive/2016/texmf-dist/fonts/type1
 /urw/times/utmr8a.pfb><c:/texlive/2016/texmf-dist/fonts/type1/urw/times/utmri8a
 .pfb>
-Output written on Assignment_2.pdf (9 pages, 1391988 bytes).
+Output written on Assignment_2.pdf (9 pages, 1557132 bytes).
 PDF statistics:
- 125 PDF objects out of 1000 (max. 8388607)
- 92 compressed objects within 1 object stream
- 30 named destinations out of 1000 (max. 500000)
- 121 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 137 PDF objects out of 1000 (max. 8388607)
+ 101 compressed objects within 2 object streams
+ 32 named destinations out of 1000 (max. 500000)
+ 139 words of extra memory for PDF output out of 10000 (max. 10000000)
 

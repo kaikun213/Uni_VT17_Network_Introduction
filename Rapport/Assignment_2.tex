@@ -147,7 +147,7 @@ We choose to create an Index file every time an user requests a directory. This 
 
 \begin{figure}[hp!]
 	\centering
-	\label{image}
+	\label{PNG}
 	\includegraphics[width=0.95\textwidth,keepaspectratio]{img/PNGFile.jpg} 
 	\caption{GET request on an image}
 \end{figure}
@@ -250,8 +250,20 @@ So in short the POST is used for when the client don't need to know the exact UR
 
 \section{Problem three}
 
-Using Telnet we are creating a raw TCP connection that sends and receive plain text. So as we se in figure \cite{TEXT} for our request for a text file we get the text as is. But if we then ask for an image like in figure \cite{IMAGE} we get the image information as text as well. So the Telnet interprets the image binary as plain text and that's why we get those weird symbols.
+Using Telnet we are creating a raw TCP connection that sends and receive plain text. So as we se in figure \ref{TEXT} for our request for a text file we get the text as is. But if we then ask for an image like in figure \ref{IMAGE} we get the image information as text as well. So the Telnet interprets the image binary as plain text and that's why we get those weird symbols.
 
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=0.95\textwidth,keepaspectratio]{img/TEXT.jpg} 
+	\caption{Telnet client asking for a .txt file, reads it in plain text}
+	\label{TEXT}
+\end{figure}
 
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=0.95\textwidth,keepaspectratio]{img/IMAGE.jpg} 
+	\caption{Telnet client asking for a .PNG file, also reads it as plain text}
+	\label{IMAGE}
+\end{figure}
 
 \end{document}
