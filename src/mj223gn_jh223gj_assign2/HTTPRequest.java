@@ -95,7 +95,7 @@ public class HTTPRequest {
 	
 	// parse HTTP request from String
 	static HTTPRequest fromString(String request) throws InvalidRequestFormatException, HTTPMethodNotImplementedException, UnsupportedMediaTypeException, HTTPVersionIsNotSupportedException, RequestURIToLongException {
-		Map<Header.HTTPHeader, Header> headers = new HashMap<Header.HTTPHeader, Header>();
+		Map<Header.HTTPHeader, Header> headers = new HashMap<>();
 		
 		// <CR><LF> carriage return and line feed at each end of a line 
 		String[] lines = request.split("\r\n");

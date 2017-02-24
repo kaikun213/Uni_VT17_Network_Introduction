@@ -5,6 +5,7 @@ import mj223gn_jh223gj_assign2.Header.MIMEType;
 import mj223gn_jh223gj_assign2.exceptions.*;
 
 import java.io.*;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -59,10 +60,8 @@ public class HTTPResponseFactory {
             /* GET Requested File */
             File file = getResource(filePath);
 
-            System.out.println("**************************" + file.getPath());
-
             /* Create Response Headers */
-            headers = new HashMap<Header.HTTPHeader, Header>();
+            headers = new HashMap<>();
 
             /* Add Standard Server Headers */
             addServerHeaders(file);
@@ -111,7 +110,7 @@ public class HTTPResponseFactory {
 
         // => If directory then create a new file (hashOfResource.type)
         if (file.isDirectory()) {
-            path = path + "/" + resource.hashCode() + "." + type;
+            path = path + "/" + Arrays.hashCode(resource) + "." + type;
             file = new File(path);
             file.createNewFile();
         }
@@ -217,9 +216,9 @@ public class HTTPResponseFactory {
 
     /**
      * Creates a Found 302 page with a link to were the resource is found now.
-     *
-     * @return an HTTP response page.
+     * @return HTTP response with the 302 code.
      * @throws FileNotFoundException
+     * @throws UnsupportedMediaTypeException
      */
     public HTTPResponse createFoundResponse() throws FileNotFoundException, UnsupportedMediaTypeException {
         HTTPResponse response;
@@ -227,7 +226,7 @@ public class HTTPResponseFactory {
         File found = new File(TCPServer.BASEPATH + "/images/test.jpg");
 
         /* Create headers in here with the redirect location header*/
-        headers = new HashMap<Header.HTTPHeader, Header>();
+        headers = new HashMap<>();
         headers.put(HTTPHeader.Date, new Header(HTTPHeader.Date, new Date().toString()));
         headers.put(Header.HTTPHeader.ContentLength, new Header(Header.HTTPHeader.ContentLength, Long.toString(found.length())));
         headers.put(Header.HTTPHeader.ContentType, new Header(Header.HTTPHeader.ContentType, Header.MIMEType.fromFileName(found.getName()).getTextFormat()));
@@ -252,7 +251,7 @@ public class HTTPResponseFactory {
     public HTTPResponse getErrorResponse(HTTPResponse.HTTPStatus status)  {
         File file = new File(DefaultErrorPath + "500.html");
         HTTPResponse response;
-        headers = new HashMap<Header.HTTPHeader, Header>();
+        headers = new HashMap<>();
         try {
             switch (status) {
                 case BadRequest:
