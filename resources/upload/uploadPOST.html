@@ -35,7 +35,7 @@ var geturl = null;
 
         },
         error: function(xhr){
-          console.log(xhr);
+            window.location.href = 'http://' + geturl.getResponseHeader('Location');
 
 
           alert('error');
