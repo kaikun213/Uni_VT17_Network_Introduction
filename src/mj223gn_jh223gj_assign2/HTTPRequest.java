@@ -96,6 +96,15 @@ public class HTTPRequest {
 		return type;
 	}
 	
+	public void setContentType(String type) throws UnsupportedMediaTypeException{
+		MIMEType mType = null;
+		for (MIMEType m : MIMEType.values()){
+			if (type.contains(m.getTextFormat())) mType = m;
+		}
+		if (mType == null) throw new UnsupportedMediaTypeException("The given media type is not supported by the server!");
+		headers.put(HTTPHeader.ContentType,new Header(HTTPHeader.ContentType, type));
+	}
+	
 	public boolean isTransferEncodingChunked(){
 		if (headers.containsKey(HTTPHeader.TransferEncoding)){
 			return headers.get(Header.HTTPHeader.TransferEncoding).getContent().equals("chunked");

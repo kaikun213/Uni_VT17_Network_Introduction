@@ -30,8 +30,6 @@ public class HTTPResponseFactory {
 
             /* Content Type of request (for creation of resource) */
             MIMEType type = request.getContentType();
-            // Only supports PNG from form-data currently.
-            if (request.getContentType() == MIMEType.xWWW) type = MIMEType.png;
 
             String filePath = TCPServer.BASEPATH + request.getUrl();
 

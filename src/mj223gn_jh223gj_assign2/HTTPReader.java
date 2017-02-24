@@ -6,12 +6,14 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Base64;
 
+import mj223gn_jh223gj_assign2.Header.MIMEType;
 import mj223gn_jh223gj_assign2.exceptions.*;
 
 public class HTTPReader {
 	
 	BufferedReader in;
 	int contentLength;
+	String type = "";
 	
 	public HTTPReader(InputStream in){
 		this.in = new BufferedReader(new InputStreamReader(in));
@@ -92,11 +94,18 @@ public class HTTPReader {
 		/* resize the array to not have empty bytes left (they would fail the decoding) */
 		requestBody = resize(requestBody, contentLength);
 		
-		/* convert to string to find the start of data (Header includes type filename etc.) */
+		/* convert to string to find the start of data (extract metadata e.g. filetype) */
 		String cuttedHeader = new String(requestBody);
 		int index = cuttedHeader.indexOf("base64");
-		// move pointer to start of image (base64.length = 6, +1 because of the encoded , sign)
-		cuttedHeader = cuttedHeader.substring(index+7); 
+		
+			/* extract file type */
+			int indexType = cuttedHeader.indexOf("data:");
+			type = cuttedHeader.substring(indexType+5, index-1);
+			System.out.println("************+++++++++++" + type);
+			
+			// extract image-data (base64.length = 6, +1 because of the encoded , sign)
+			cuttedHeader = cuttedHeader.substring(index+7); 
+		
 		/* correct substring build. => Decode and save as requestBody */
 		return Base64.getDecoder().decode(cuttedHeader);
 	}
@@ -138,7 +147,11 @@ public class HTTPReader {
 		if (!(result.getType().equals(HTTPRequest.Method.POST) || result.getType().equals(HTTPRequest.Method.PUT))){
 			result.setRequestBody(null);
 		}
-
+		
+		/* If base64 image/gif, image/png, image/png type -> set correct */
+		if (!type.isEmpty()) {
+			result.setContentType(type);
+		}
 
 		return result;
 	}

@@ -87,7 +87,7 @@ public class Header {
 	    //vorbis("audio/vorbis"),
 	    //formData("multipart/form-data"),
 	    xWWW("application/x-www-form-urlencoded"),
-	    ico("image/png"),
+	    //ico("image/png"),
 
 	    
 	    // Default
