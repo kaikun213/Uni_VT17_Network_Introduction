@@ -80,7 +80,7 @@ public class HTTPReader {
 		
 	}
 	
-	private byte[] readBodyBase64() throws InvalidRequestFormatException, IOException{
+	private byte[] readBodyBase64() throws InvalidRequestFormatException, IOException, UnsupportedMediaTypeException {
 		byte[] requestBody = new byte[contentLength];
 		for (int i=0; i<contentLength;i++){
 			requestBody[i] = (byte) in.read();
@@ -101,7 +101,9 @@ public class HTTPReader {
 			/* extract file type */
 			int indexType = cuttedHeader.indexOf("data:");
 			type = cuttedHeader.substring(indexType+5, index-1);
-			System.out.println("************+++++++++++" + type);
+			if(type.contains("gif")){
+				throw new UnsupportedMediaTypeException("Media type " + type + " is not supported by the server");
+			}
 			
 			// extract image-data (base64.length = 6, +1 because of the encoded , sign)
 			cuttedHeader = cuttedHeader.substring(index+7); 

@@ -88,7 +88,7 @@ public class HTTPResponseFactory {
 
     private String handlePOST(String path, byte[] resource, MIMEType type) throws ResourceNotFoundException, AccessRestrictedException, IOException {
         File file = new File(path);
-		/* If file/directory does not exist -> create file in the home directory */
+        /* If file/directory does not exist -> create file in the home directory */
         if (!file.exists()) return createOrUpdateResource("", resource, type);
 		/* If it is a directory -> create file in the given directory */
         else if (file.isDirectory()) return createOrUpdateResource(path, resource, type);
@@ -203,7 +203,7 @@ public class HTTPResponseFactory {
     }
 
     /* TASK: NEED TO ADD MORE STANDARD Headers! */
-    private void addServerHeaders(File file) throws UnsupportedMediaTypeException {
+    private void addServerHeaders(File file) {
         headers.put(HTTPHeader.Date, new Header(HTTPHeader.Date, new Date().toString()));
         headers.put(Header.HTTPHeader.ContentLength, new Header(Header.HTTPHeader.ContentLength, Long.toString(file.length())));
         headers.put(Header.HTTPHeader.ContentType, new Header(Header.HTTPHeader.ContentType, Header.MIMEType.fromFileName(file.getName()).getTextFormat()));
@@ -214,6 +214,7 @@ public class HTTPResponseFactory {
 
     /**
      * Creates a Found 302 page with a link to were the resource is found now.
+     *
      * @return HTTP response with the 302 code.
      * @throws FileNotFoundException
      * @throws UnsupportedMediaTypeException
@@ -246,75 +247,67 @@ public class HTTPResponseFactory {
      * @param status code of what error occurred
      * @return HTTPResponse with error message
      */
-    public HTTPResponse getErrorResponse(HTTPResponse.HTTPStatus status)  {
+    public HTTPResponse getErrorResponse(HTTPResponse.HTTPStatus status) {
         File file = new File(DefaultErrorPath + "500.html");
         HTTPResponse response;
         headers = new HashMap<>();
-        try {
-            switch (status) {
-                case BadRequest:
-                    file = new File(DefaultErrorPath + "400.html");
-                    response = new HTTPResponse(HTTPResponse.HTTPStatus.BadRequest, headers);
-                    addServerHeaders(file);
-                    response.setResponseBody(file);
-                    return response;
-                case Forbidden:
-                    file = new File(DefaultErrorPath + "403.html");
-                    response = new HTTPResponse(HTTPResponse.HTTPStatus.Forbidden, headers);
-                    addServerHeaders(file);
-                    response.setResponseBody(file);
-                    return response;
-                case NotFound:
-                    file = new File(DefaultErrorPath + "404.html");
-                    response = new HTTPResponse(HTTPResponse.HTTPStatus.NotFound, headers);
-                    addServerHeaders(file);
-                    response.setResponseBody(file);
-                    return response;
-                case LengthRequired:
-                    file = new File(DefaultErrorPath + "411.html");
-                    response = new HTTPResponse(HTTPResponse.HTTPStatus.LengthRequired, headers);
-                    addServerHeaders(file);
-                    response.setResponseBody(file);
-                    return response;
-                case UnsupportedMediaType:
-                    file = new File(DefaultErrorPath + "415.html");
-                    response = new HTTPResponse(HTTPResponse.HTTPStatus.UnsupportedMediaType, headers);
-                    addServerHeaders(file);
-                    response.setResponseBody(file);
-                    return response;
-                case NotImplemented:
-                    file = new File(DefaultErrorPath + "501.html");
-                    response = new HTTPResponse(HTTPResponse.HTTPStatus.NotImplemented, headers);
-                    addServerHeaders(file);
-                    response.setResponseBody(file);
-                    return response;
-                case HTTPVersionNotSupported:
-                    file = new File(DefaultErrorPath + "505.html");
-                    response = new HTTPResponse(HTTPResponse.HTTPStatus.HTTPVersionNotSupported, headers);
-                    addServerHeaders(file);
-                    response.setResponseBody(file);
-                    return response;
-                case URIToLong:
-                    file = new File(DefaultErrorPath + "414.html");
-                    response = new HTTPResponse(HTTPResponse.HTTPStatus.URIToLong, headers);
-                    addServerHeaders(file);
-                    response.setResponseBody(file);
-                    return response;
-                default:
-                    response = new HTTPResponse(HTTPResponse.HTTPStatus.InternalServerError, headers);
-                    addServerHeaders(file);
-                    response.setResponseBody(file);
-                    return response;
-            }
-            /* Had to catch here as addServerHeaders throws UnsupportedMediaType */
-        }catch (UnsupportedMediaTypeException e){
-            file = new File(DefaultErrorPath + "415.html");
-            response = new HTTPResponse(HTTPResponse.HTTPStatus.UnsupportedMediaType, headers);
-            headers.put(HTTPHeader.Date, new Header(HTTPHeader.Date, new Date().toString()));
-            response.setResponseBody(file);
-            return response;
+
+        switch (status) {
+            case BadRequest:
+                file = new File(DefaultErrorPath + "400.html");
+                response = new HTTPResponse(HTTPResponse.HTTPStatus.BadRequest, headers);
+                addServerHeaders(file);
+                response.setResponseBody(file);
+                return response;
+            case Forbidden:
+                file = new File(DefaultErrorPath + "403.html");
+                response = new HTTPResponse(HTTPResponse.HTTPStatus.Forbidden, headers);
+                addServerHeaders(file);
+                response.setResponseBody(file);
+                return response;
+            case NotFound:
+                file = new File(DefaultErrorPath + "404.html");
+                response = new HTTPResponse(HTTPResponse.HTTPStatus.NotFound, headers);
+                addServerHeaders(file);
+                response.setResponseBody(file);
+                return response;
+            case LengthRequired:
+                file = new File(DefaultErrorPath + "411.html");
+                response = new HTTPResponse(HTTPResponse.HTTPStatus.LengthRequired, headers);
+                addServerHeaders(file);
+                response.setResponseBody(file);
+                return response;
+            case UnsupportedMediaType:
+                file = new File(DefaultErrorPath + "415.html");
+                response = new HTTPResponse(HTTPResponse.HTTPStatus.UnsupportedMediaType, headers);
+                addServerHeaders(file);
+                response.setResponseBody(file);
+                return response;
+            case NotImplemented:
+                file = new File(DefaultErrorPath + "501.html");
+                response = new HTTPResponse(HTTPResponse.HTTPStatus.NotImplemented, headers);
+                addServerHeaders(file);
+                response.setResponseBody(file);
+                return response;
+            case HTTPVersionNotSupported:
+                file = new File(DefaultErrorPath + "505.html");
+                response = new HTTPResponse(HTTPResponse.HTTPStatus.HTTPVersionNotSupported, headers);
+                addServerHeaders(file);
+                response.setResponseBody(file);
+                return response;
+            case URIToLong:
+                file = new File(DefaultErrorPath + "414.html");
+                response = new HTTPResponse(HTTPResponse.HTTPStatus.URIToLong, headers);
+                addServerHeaders(file);
+                response.setResponseBody(file);
+                return response;
+            default:
+                response = new HTTPResponse(HTTPResponse.HTTPStatus.InternalServerError, headers);
+                addServerHeaders(file);
+                response.setResponseBody(file);
+                return response;
         }
+
+
     }
-
-
 }

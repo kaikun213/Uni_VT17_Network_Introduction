@@ -135,6 +135,7 @@ public class TCPServer {
 						System.out.println("---- Request URI to long ----\n" + e.getMessage());
 						connection.getOutputStream().write(response.toBytes());
 					}catch (Exception e) {
+						e.printStackTrace();
 						HTTPResponse response = factory.getErrorResponse(HTTPResponse.HTTPStatus.InternalServerError);
 						System.out.println("---- Internal server error 500 ----\n" + e.getMessage());
 						connection.getOutputStream().write(response.toBytes());
