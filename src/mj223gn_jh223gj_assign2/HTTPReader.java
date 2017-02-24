@@ -31,7 +31,7 @@ public class HTTPReader {
 	private byte[] readChunkedBody() throws IOException{
 		byte[] requestBody = new byte[0];
 		/* Chunk size given as hex-code */
-		int chunkSize = 0;
+		int chunkSize;
 		int index;
 		
 		do{
@@ -56,7 +56,7 @@ public class HTTPReader {
 		/* no more chunks to expect when a chunk with size zero is sent */
 		}while(chunkSize != 0);
 
-		System.out.println("Chunked data: " + requestBody);
+		System.out.println("Chunked data: " + requestBody.toString());
 		return requestBody;
 	}
 	
@@ -121,7 +121,8 @@ public class HTTPReader {
 		while (true){
 			line = in.readLine();
 			if (line == null || line.equals("") || line.equals("\r\n")) break;
-			request.append(line + "\r\n");
+			request.append(line);
+			request.append("\r\n");
 		}
 
 		/* error detection -> print out request once */

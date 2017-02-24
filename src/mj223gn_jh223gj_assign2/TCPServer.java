@@ -3,7 +3,6 @@ package mj223gn_jh223gj_assign2;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.time.Duration;
 import java.time.Instant;
@@ -58,11 +57,11 @@ public class TCPServer {
 	    
 		public ConnectionHandler(Socket connection){ 
 			this.connection = connection;
-			try {
-				this.connection.setSoTimeout(TIMEOUT);
-			} catch (SocketException e) {
-				e.printStackTrace();
-			}
+//			try {
+//				this.connection.setSoTimeout(TIMEOUT);
+//			} catch (SocketException e) {
+//				e.printStackTrace();
+//			}
 		}
 		@Override
 		public void run() {
@@ -73,7 +72,7 @@ public class TCPServer {
 				HTTPReader parser = new HTTPReader(connection.getInputStream());
 
 				/* while client stays connected */
-				while (true) {
+				//while (true) {
 					try {
 					/* Parse HTTP Request from input stream */
 					HTTPRequest request = parser.read();
@@ -99,10 +98,10 @@ public class TCPServer {
 				    System.out.printf(" Headers: %s \n", response.toString());
 				    
 				    /* Client wants to close connection */
-				    if (request.closeConnection() || (connection.getInputStream().read() == -1)) break;
+				    //if (request.closeConnection() || (connection.getInputStream().read() == -1)) break;
 				    
 					} catch (SocketTimeoutException e) {
-						break;
+						//break;
 					} catch (UnsupportedMediaTypeException e) {
 						HTTPResponse response = factory.getErrorResponse(HTTPResponse.HTTPStatus.UnsupportedMediaType);
 						System.out.println("---- Unsupported MediaType Exception ----\n" + e.getMessage());
@@ -140,7 +139,7 @@ public class TCPServer {
 						System.out.println("---- Internal server error 500 ----\n" + e.getMessage());
 						connection.getOutputStream().write(response.toBytes());
 					}
-				}
+			//	}
 				/* Tear down connection and print closing-status */
 				System.out.printf("TCP Connection from %s using port %d handled by thread %d is closed.\n", connection.getInetAddress().getHostAddress(), connection.getPort(), Thread.currentThread().getId());
 				connection.close();

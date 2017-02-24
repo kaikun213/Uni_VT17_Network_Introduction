@@ -138,21 +138,120 @@ We choose to create an Index file every time an user requests a directory. This 
 	\caption{GET request on a directory, responds with index.html}
 \end{figure}
 
-\begin{figure}[h!]
+\begin{figure}[hp!]
 	\centering
 	\label{HTML}
 	\includegraphics[width=0.95\textwidth,keepaspectratio]{img/HTMLFile.jpg} 
 	\caption{GET request on a HTML file}
 \end{figure}
 
-\begin{figure}[h!]
+\begin{figure}[hp!]
 	\centering
 	\label{image}
 	\includegraphics[width=0.95\textwidth,keepaspectratio]{img/PNGFile.jpg} 
 	\caption{GET request on an image}
 \end{figure}
 
+\newpage
 \section{Problem two}
+
+\begin{figure}[h!]
+	\centering
+	\label{Access denied}
+	\includegraphics[width=0.90\textwidth,keepaspectratio]{img/403.jpg} 
+	\caption{403 Access denied when trying to access our secret folder}
+\end{figure}
+
+\begin{figure}[h!]
+	\centering
+	\label{not found}
+	\includegraphics[width=0.90\textwidth,keepaspectratio]{img/404.jpg} 
+	\caption{404 Not Found when trying to GET a resource that don't exist on the server}
+\end{figure}
+
+\begin{figure}[h!]
+	\centering
+	\label{Server error}
+	\includegraphics[width=0.90\textwidth,keepaspectratio]{img/500.jpg} 
+	\caption{500 for any internal server errors, socket error etc.}
+\end{figure}
+
+\newpage
+\subsection{VG.1 HTTP status code implementation}
+
+For some images below we just show the error.html response but we send the status code as well for every error.
+
+\begin{figure}[h!]
+	\centering
+	\label{201}
+	\includegraphics[width=0.95\textwidth,keepaspectratio]{img/201.jpg} 
+	\caption{201 when the user creates a new resource with POST/PUT.}
+\end{figure}
+
+\begin{figure}[h!]
+	\centering
+	\label{204}
+	\includegraphics[width=0.95\textwidth,keepaspectratio]{img/204.jpg} 
+	\caption{204 if the user tries to GET a empty file}
+\end{figure}
+
+\begin{figure}[h!]
+	\centering
+	\label{302}
+	\includegraphics[width=0.95\textwidth,keepaspectratio]{img/302.jpg} 
+	\caption{302 if we have specified that a specific file has changed location on the server, redirect the browser to the new location with the location header.}
+\end{figure}
+
+\begin{figure}[h!]
+	\centering
+	\label{411}
+	\includegraphics[width=0.95\textwidth,keepaspectratio]{img/411.jpg} 
+	\caption{411 if the POST/PUT body is empty}
+\end{figure}
+
+\begin{figure}[h!]
+	\centering
+	\label{414}
+	\includegraphics[width=0.95\textwidth,keepaspectratio]{img/414.jpg} 
+	\caption{414 if the URI is longer then 2048 characters.}
+\end{figure}
+
+\begin{figure}[h!]
+	\centering
+	\label{415}
+	\includegraphics[width=0.95\textwidth,keepaspectratio]{img/415.jpg} 
+	\caption{// CHECK THIS ONE  }
+\end{figure}
+
+\begin{figure}[h!]
+	\centering
+	\label{501}
+	\includegraphics[width=0.95\textwidth,keepaspectratio]{img/501.jpg} 
+	\caption{501 for any HTTP methods that we haven't implemented, like in this case the DELETE method.}
+\end{figure}
+
+\begin{figure}[h!]
+	\centering
+	\label{505}
+	\includegraphics[width=0.95\textwidth,keepaspectratio]{img/505.jpg} 
+	\caption{505 for HTTP version 1.1. We support all HTTP versions when we run the server, but we can set this exception if we don't want to support a special HTTP version later on.}
+\end{figure}
+
+\newpage
+\subsection{VG.2 POST vs PUT}
+
+We use POST when the user uploads a new resource that our sever handles where it should be placed. In our POST implementation the user can upload an image through our upload page. The server then creates that images with a hash as the file name and under the images folder.  
+
+If instead the user has the exact request-URI then we can use PUT to create or overwrite the file on that exact URI. 
+
+So in short the POST is used for when the client don't need to know the exact URI and just upload the file where we want it. The PUT when the client want to Create or replace a file on an exact URI.
+
+\newpage
+
+\section{Problem three}
+
+Using Telnet we are creating a raw TCP connection that sends and receive plain text. So as we se in figure \cite{TEXT} for our request for a text file we get the text as is. But if we then ask for an image like in figure \cite{IMAGE} we get the image information as text as well. So the Telnet interprets the image binary as plain text and that's why we get those weird symbols.
+
 
 
 \end{document}
