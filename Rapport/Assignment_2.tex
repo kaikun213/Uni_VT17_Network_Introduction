@@ -127,6 +127,12 @@
 
 \section{Assignment summary}
 
+\begin{itemize}
+\item\textbf{Michael} did the most of the report and exceptions handling. Wrote some methods in the code and did tests. 
+
+\item\textbf{Jakob} did most of the server code, with the major parts of the functionality. He did the Javascript pages for PUT/POST. He also made sure that we had a good ground to stand on with alot of enumeration types for MIME types etc. 
+\end{itemize}
+
 \section{Problem one}
 
 We choose to create an Index file every time an user requests a directory. This way we have index links to the files in that directory to help with the navigation and it looks good. But if the user ask for a file/directory that doesn't exist on the server we send back a 404(File not found).We also link to our secret folder in this main index but if we click on it we get an 403 (access denied).
@@ -142,7 +148,7 @@ We choose to create an Index file every time an user requests a directory. This 
 	\centering
 	\label{HTML}
 	\includegraphics[width=0.95\textwidth,keepaspectratio]{img/HTMLFile.jpg} 
-	\caption{GET request on a HTML file}
+	\caption{GET request on a HTML file, this one is a copy without css of a German site}
 \end{figure}
 
 \begin{figure}[hp!]
@@ -185,14 +191,14 @@ For some images below we just show the error.html response but we send the statu
 	\centering
 	\label{201}
 	\includegraphics[width=0.95\textwidth,keepaspectratio]{img/201.jpg} 
-	\caption{201 when the user creates a new resource with POST/PUT.}
+	\caption{201 Created, when the user creates a new resource with POST/PUT.}
 \end{figure}
 
 \begin{figure}[h!]
 	\centering
 	\label{204}
 	\includegraphics[width=0.95\textwidth,keepaspectratio]{img/204.jpg} 
-	\caption{204 if the user tries to GET a empty file}
+	\caption{204 Not Found, if the user tries to GET a empty file}
 \end{figure}
 
 \begin{figure}[h!]
@@ -220,7 +226,7 @@ For some images below we just show the error.html response but we send the statu
 	\centering
 	\label{415}
 	\includegraphics[width=0.95\textwidth,keepaspectratio]{img/415.jpg} 
-	\caption{// CHECK THIS ONE  }
+	\caption{415 we get this when the client tries to POST/PUT a gif image. }
 \end{figure}
 
 \begin{figure}[h!]
