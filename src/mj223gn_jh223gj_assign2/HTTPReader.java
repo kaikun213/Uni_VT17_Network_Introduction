@@ -6,7 +6,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Base64;
 
-import mj223gn_jh223gj_assign2.Header.MIMEType;
 import mj223gn_jh223gj_assign2.exceptions.*;
 
 public class HTTPReader {
@@ -15,8 +14,9 @@ public class HTTPReader {
 	int contentLength;
 	String type = "";
 	
-	public HTTPReader(InputStream in){
+	public HTTPReader(InputStream in) throws IOException{
 		this.in = new BufferedReader(new InputStreamReader(in));
+		this.in.mark(1);
 	}
 	
 	private byte[] readBody() throws InvalidRequestFormatException, IOException{
@@ -35,7 +35,7 @@ public class HTTPReader {
 		int index;
 		
 		do{
-			/* set new index (pointing at last filled position in array */
+			/* set new index (pointing at last filled position in array) */
 			index = requestBody.length;
 			/* read the chunk size followed by \r\n */
 			chunkSize = Integer.parseInt(in.readLine(), 16);
@@ -118,7 +118,9 @@ public class HTTPReader {
 
 		StringBuilder request = new StringBuilder();
 		String line;
-
+		
+		in.reset();
+		
 		/* Read Headers */
 		while (true){
 			line = in.readLine();
@@ -156,6 +158,7 @@ public class HTTPReader {
 			result.setContentType(type);
 		}
 
+		in.mark(2);
 		return result;
 	}
 

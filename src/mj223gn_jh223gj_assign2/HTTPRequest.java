@@ -73,6 +73,17 @@ public class HTTPRequest {
 		else return 0;
 	}
 	
+	 /** Returns true if the client wants to close the connection. 
+	   *  
+	   * @return true if header connection : close is sent. False if connection : alive, keep-alive, upgrade; 
+	   */ 
+	  public boolean closeConnection(){ 
+	    if (headers.containsKey(HTTPHeader.Connection)) { 
+	      return ("close".equals(headers.get(HTTPHeader.Connection).getContent())); 
+	    } 
+	    return true; 
+	  } 
+	
 	public MIMEType getContentType(){
 		MIMEType type = null;
 		if (headers.containsKey(HTTPHeader.ContentType)) {

@@ -1,8 +1,12 @@
 package mj223gn_jh223gj_assign2;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.time.Duration;
 import java.time.Instant;
@@ -15,7 +19,7 @@ public class TCPServer {
 	public static final String BASEPATH = "resources";
 	public static final int BUFSIZE= 1024;
     public static final int MYPORT= 4950;
-    public static final int TIMEOUT = 150; 	// 15000 ms
+    public static final int TIMEOUT = 15000; 	// 15000 ms
     public static final double HTTPVERSION = 2.0;
 	
 	public static void main(String[] args) throws IOException{
@@ -51,17 +55,25 @@ public class TCPServer {
 		System.out.println("******************************************");
 	}
 	
+	private void read(BufferedReader in) throws IOException{
+		while (true){
+			String line = in.readLine();
+			System.out.println(line);
+			if (line == null || line.equals("") || line.equals("\r\n")) break;
+		}
+	}
+	
 	/* Handles client connection */
 	class ConnectionHandler implements Runnable{
 		private Socket connection;
 	    
 		public ConnectionHandler(Socket connection){ 
 			this.connection = connection;
-//			try {
-//				this.connection.setSoTimeout(TIMEOUT);
-//			} catch (SocketException e) {
-//				e.printStackTrace();
-//			}
+			try {
+				this.connection.setSoTimeout(TIMEOUT);
+			} catch (SocketException e) {
+				e.printStackTrace();
+			}
 		}
 		@Override
 		public void run() {
@@ -70,11 +82,10 @@ public class TCPServer {
 
 			try {
 				HTTPReader parser = new HTTPReader(connection.getInputStream());
-
 				/* while client stays connected */
-				//while (true) {
+				while (true) {
 					try {
-					/* Parse HTTP Request from input stream */
+					/* Parse HTTP Request from input stream */					
 					HTTPRequest request = parser.read();
 					HTTPResponse response = factory.getHTTPResponse(request);
 
@@ -86,6 +97,7 @@ public class TCPServer {
 
 
 					/* Print status of request */
+					
 					System.out.printf("TCP echo request from %s", connection.getInetAddress().getHostAddress());
 				    System.out.printf(" using port %d", connection.getPort());
 				    System.out.printf(" handled from thread %d; Method-Type: <%s>,", Thread.currentThread().getId(), request.getType());
@@ -93,15 +105,17 @@ public class TCPServer {
 				    if (request.getRequestBody() !=  null) System.out.println(" Content: " + new String(request.getRequestBody()));
 				    
 				    /* Print status of response */
+					
 					System.out.printf("TCP echo response from %s", connection.getLocalAddress());
 				    System.out.printf(" using port %d", connection.getLocalPort());
 				    System.out.printf(" Headers: %s \n", response.toString());
 				    
 				    /* Client wants to close connection */
-				    //if (request.closeConnection() || (connection.getInputStream().read() == -1)) break;
+					
+				    if (request.closeConnection() || (connection.getInputStream().read() == -1)) break;
 				    
 					} catch (SocketTimeoutException e) {
-						//break;
+						break;
 					} catch (UnsupportedMediaTypeException e) {
 						HTTPResponse response = factory.getErrorResponse(HTTPResponse.HTTPStatus.UnsupportedMediaType);
 						System.out.println("---- Unsupported MediaType Exception ----\n" + e.getMessage());
@@ -138,9 +152,11 @@ public class TCPServer {
 						e.printStackTrace();
 						HTTPResponse response = factory.getErrorResponse(HTTPResponse.HTTPStatus.InternalServerError);
 						System.out.println("---- Internal server error 500 ----\n" + e.getMessage());
+						e.printStackTrace();
 						connection.getOutputStream().write(response.toBytes());
 					}
-			//	}
+					
+				}
 				/* Tear down connection and print closing-status */
 				System.out.printf("TCP Connection from %s using port %d handled by thread %d is closed.\n", connection.getInetAddress().getHostAddress(), connection.getPort(), Thread.currentThread().getId());
 				connection.close();

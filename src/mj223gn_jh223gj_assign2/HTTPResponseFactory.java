@@ -78,7 +78,7 @@ public class HTTPResponseFactory {
                 response = new HTTPResponse(HTTPResponse.HTTPStatus.OK, headers);
             }
             response.setResponseBody(file);
-
+            
         }
 
         return response;
