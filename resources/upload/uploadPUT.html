@@ -41,11 +41,6 @@ var geturl = null;
 
         console.log(geturl.getAllResponseHeaders());
 
-	//var req = new XMLHttpRequest();
-	//req.open('GET', document.location, false);
-	//req.send(null);
-	//var headers = req.getAllResponseHeaders().toLowerCase();
-	//alert(headers);
 	window.location.href = 'http://' + geturl.getResponseHeader('Location');
 
 	alert('Success! File uploaded. Redirecting to the image!');

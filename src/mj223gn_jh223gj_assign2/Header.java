@@ -111,7 +111,6 @@ public class Header {
             MIMEType type = MIMEType.txt;
             int index = fileName.lastIndexOf('.');
             // file extension needs to be correct => e.g. js, png, html
-            System.out.println(fileName.substring(index+1));
             if (index > 0) type = MIMEType.valueOf(fileName.substring(index + 1));
             return type;
 

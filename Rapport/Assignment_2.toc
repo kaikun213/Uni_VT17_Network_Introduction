@@ -1,7 +1,9 @@
 \select@language {english}
 \contentsline {section}{\numberline {1}Assignment summary}{1}{section.1}
-\contentsline {section}{\numberline {2}Problem one}{1}{section.2}
-\contentsline {section}{\numberline {3}Problem two}{3}{section.3}
-\contentsline {subsection}{\numberline {3.1}VG.1 HTTP status code implementation}{4}{subsection.3.1}
+\contentsline {subsection}{\numberline {1.1}Small summary of our server}{1}{subsection.1.1}
+\contentsline {subsection}{\numberline {1.2}Good to know}{1}{subsection.1.2}
+\contentsline {section}{\numberline {2}Problem one}{2}{section.2}
+\contentsline {section}{\numberline {3}Problem two}{4}{section.3}
+\contentsline {subsection}{\numberline {3.1}VG.1 HTTP status code implementation}{5}{subsection.3.1}
 \contentsline {subsection}{\numberline {3.2}VG.2 POST vs PUT}{6}{subsection.3.2}
-\contentsline {section}{\numberline {4}Problem three}{7}{section.4}
+\contentsline {section}{\numberline {4}Problem three}{9}{section.4}
