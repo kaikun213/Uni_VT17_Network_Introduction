@@ -84,7 +84,7 @@ public class HTTPRequest {
 	    return true; 
 	  } 
 	
-	public MIMEType getContentType(){
+	public MIMEType getContentType() throws UnsupportedMediaTypeException {
 		MIMEType type = null;
 		if (headers.containsKey(HTTPHeader.ContentType)) {
 				/* conversion from text format to MIMEType enum */
@@ -94,6 +94,7 @@ public class HTTPRequest {
 					}
 				}
 		}
+
 		return type;
 	}
 	
@@ -102,6 +103,7 @@ public class HTTPRequest {
 		for (MIMEType m : MIMEType.values()){
 			if (type.contains(m.getTextFormat())) mType = m;
 		}
+		System.out.println(mType);
 		if (mType == null) throw new UnsupportedMediaTypeException("The given media type is not supported by the server!");
 		headers.put(HTTPHeader.ContentType,new Header(HTTPHeader.ContentType, type));
 	}

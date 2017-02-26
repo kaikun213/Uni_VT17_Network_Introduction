@@ -47,7 +47,6 @@ public class HTTPReader {
 			for (int i=index;i<(index+chunkSize);i++){
 				requestBody[i] = (byte) in.read();
 				if (requestBody[i] == '\r' || requestBody[i] == '\n') i--;
-				System.out.println("RequestBodyLength: "+ i + " : Content = " + new String(requestBody));
 			}
 			// read linebreak (\r\n)
 			in.read();
@@ -56,7 +55,6 @@ public class HTTPReader {
 		/* no more chunks to expect when a chunk with size zero is sent */
 		}while(chunkSize != 0);
 
-		System.out.println("Chunked data: " + requestBody.toString());
 		return requestBody;
 	}
 	
@@ -101,9 +99,6 @@ public class HTTPReader {
 			/* extract file type */
 			int indexType = cuttedHeader.indexOf("data:");
 			type = cuttedHeader.substring(indexType+5, index-1);
-			if(type.contains("gif")){
-				throw new UnsupportedMediaTypeException("Media type " + type + " is not supported by the server");
-			}
 			
 			// extract image-data (base64.length = 6, +1 because of the encoded , sign)
 			cuttedHeader = cuttedHeader.substring(index+7); 

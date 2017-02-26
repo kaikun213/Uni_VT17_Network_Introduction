@@ -128,9 +128,13 @@
 \section{Assignment summary}
 
 \begin{itemize}
-\item\textbf{Michael} did the most of the report and implemented exceptions handling. Wrote some methods in the code and did tests. 
+\item\textbf{Michael} did the most of the report and implemented exceptions handling. Wrote some methods in the code and did tests.
 
-\item\textbf{Jakob} did most of the server code, with the major parts of the functionality. He did the Javascript pages for PUT/POST. He also made sure that we had a good ground to stand on with alot of enumeration types for MIME types etc. 
+Work percentage 45\%
+
+\item\textbf{Jakob} did most of the server code, with the major parts of the functionality. He did the Javascript pages for PUT/POST. He also made sure that we had a good ground to stand on with alot of enumeration types for MIME types etc.
+
+Work percentage 55\%
 \end{itemize}
 
 \subsection{Small summary of our server}
@@ -147,6 +151,8 @@ If there is any error we throw an exception and from that exception create diffe
 \subsection{Good to know}
 \begin{itemize}
 	\item We have an out commented code where we can test our HTTP version not implemented exception. 
+	
+	\item We choose to close the connection after each request/response but we could alternatively left it open and let the server time out the connection
 	
 	\item Only GET,POST and PUT are implemented HTTP metods.
 	
@@ -276,7 +282,7 @@ For some images below we just show the error.html response but we send the statu
 	\centering
 	\label{415}
 	\includegraphics[width=0.95\textwidth,keepaspectratio]{img/415.jpg} 
-	\caption{415 we get this when the client tries to POST/PUT a gif image. }
+	\caption{415 we get this when the client tries to POST/PUT a exe/docx etc.}
 \end{figure}
 
 \begin{figure}[h!]
