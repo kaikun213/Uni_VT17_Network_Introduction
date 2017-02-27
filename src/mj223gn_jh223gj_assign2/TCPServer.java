@@ -13,7 +13,7 @@ import java.time.Instant;
 public class TCPServer {
 
     // Root path of the server to search requested files (URL) - relative to working directory
-    public static final String BASEPATH = "resources";
+    public static final String BASEPATH = "resources/http";
     public static final int MYPORT = 4950;
     public static final double HTTPVERSION = 2.0;
 

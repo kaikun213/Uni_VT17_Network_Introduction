@@ -1,18 +1,21 @@
 package mj223gn_jh223gj_assign3;
 
+import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.SocketException;
+import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 public class TFTPServer 
 {
 	public static final int TFTPPORT = 4970;
 	public static final int BUFSIZE = 516;
-	public static final String READDIR = "/home/username/read/"; //custom address at your PC
-	public static final String WRITEDIR = "/home/username/write/"; //custom address at your PC
+	public static final String READDIR = "resources/tftp/read/"; //custom address at your PC
+	public static final String WRITEDIR = "resources/tftp/write/"; //custom address at your PC
 	// OP codes
 	public static final int OP_RRQ = 1;
 	public static final int OP_WRQ = 2;
@@ -74,7 +77,7 @@ public class TFTPServer
 						sendSocket.connect(clientAddress);						
 						
 						System.out.printf("%s request for %s from %s using port %d\n",
-								(reqtype == OP_RRQ)?"Read":"Write",
+								(reqtype == OP_RRQ)?"Read":"Write", requestedFile.toString(),
 								clientAddress.getHostName(), clientAddress.getPort());  
 								
 						// Read request
@@ -105,15 +108,22 @@ public class TFTPServer
 	 * @return socketAddress (the socket address of the client)
 	 */
 	private InetSocketAddress receiveFrom(DatagramSocket socket, byte[] buf) 
-	{
+	{	// return null if error occurs 
+		InetSocketAddress socketAddress = null;
+		
 		// Create datagram packet
 		DatagramPacket requestPacket = new DatagramPacket(buf, buf.length);
 		
 		// Receive packet
-		socket.receive(requestPacket);
+		try {
+			socket.receive(requestPacket);
+		} catch (IOException e) {
+			e.printStackTrace();
+			return null;
+		}
 		
 		// Get client address and port from the packet
-		InetSocketAddress socketAddress = new InetSocketAddress(requestPacket.getAddress(), requestPacket.getPort());
+		socketAddress = new InetSocketAddress(requestPacket.getAddress(), requestPacket.getPort());
 		
 		return socketAddress;
 	}
@@ -127,8 +137,35 @@ public class TFTPServer
 	 */
 	private int ParseRQ(byte[] buf, StringBuffer requestedFile) 
 	{
-		// See "TFTP Formats" in TFTP specification for the RRQ/WRQ request contents
 		
+		// First two bytes define the OP-Code
+		ByteBuffer wrap= ByteBuffer.wrap(buf);
+		int opcode = wrap.getShort();
+		
+		// File name followed by a zero byte
+			// Get index of zero bytes
+			int filenameIndex = 0;
+			int requestIndex = 0;
+			for (int i=0; i<buf.length; i++){
+				if (buf[i] == 0){
+					// first zero byte 
+					if (filenameIndex == 0) filenameIndex = i;
+					// 2nd zero byte => break to cut of empty buffer
+					else {
+						requestIndex = i;
+						break;
+					}
+				}
+			}
+		// 2 Bytes opcode offset
+		requestedFile.append(new String(buf, 2, filenameIndex-2));
+		
+		// Mode followed by a zero byte
+		String mode = new String(buf, filenameIndex+1, requestIndex-filenameIndex-1);
+		
+		// only octet mode supported (not case sensitive)
+		if (!mode.toLowerCase().equals("octet")) throw new IllegalArgumentException("transfer mode not supported!");
+				
 		return opcode;
 	}
 
@@ -141,6 +178,7 @@ public class TFTPServer
 	 */
 	private void HandleRQ(DatagramSocket sendSocket, String requestedFile, int opcode) 
 	{		
+		/*
 		if(opcode == OP_RRQ)
 		{
 			// See "TFTP Formats" in TFTP specification for the DATA and ACK packet contents
@@ -157,11 +195,14 @@ public class TFTPServer
 			send_ERR(params);
 			return;
 		}		
+		*/
 	}
+	
 	
 	/**
 	To be implemented
 	*/
+	/*
 	private boolean send_DATA_receive_ACK(params)
 	{return true;}
 	
@@ -170,7 +211,7 @@ public class TFTPServer
 	
 	private void send_ERR(params)
 	{}
-	
+	*/
 }
 
 
