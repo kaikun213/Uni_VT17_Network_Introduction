@@ -87,10 +87,13 @@ public class TFTPServer
 							HandleRQ(sendSocket, requestedFile.toString(), OP_RRQ);
 						}
 						// Write request
-						else 
+						else if (reqtype == OP_WRQ)
 						{                       
 							requestedFile.insert(0, WRITEDIR);
 							HandleRQ(sendSocket,requestedFile.toString(),OP_WRQ);  
+						}
+						else {
+							send_ERR(4, "opcode=" + reqtype + " is invalid.");
 						}
 						sendSocket.close();
 					} 
@@ -208,10 +211,10 @@ public class TFTPServer
 	
 	private boolean receive_DATA_send_ACK(params)
 	{return true;}
-	
-	private void send_ERR(params)
-	{}
 	*/
+	private void send_ERR(int errCode, String errMessage){
+	}
+	
 }
 
 
