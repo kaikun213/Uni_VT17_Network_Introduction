@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -11,6 +12,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
@@ -194,7 +196,7 @@ public class TFTPServer
 				File file = new File(requestedFile);
 				// Check if file exists
 				if (!file.exists() || file.isDirectory()){
-					send_ERR(sendSocket, 1, "File not found!");
+					send_ERR(sendSocket, 1, "File not found.");
 					return;
 				}
 				
@@ -233,7 +235,7 @@ public class TFTPServer
 		        fis.close();
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
-				send_ERR(sendSocket, 1, "File not found");
+				send_ERR(sendSocket, 1, "File not found.");
 			} catch (IOException e) {
 				// should not occur! 
 				e.printStackTrace();
@@ -243,22 +245,99 @@ public class TFTPServer
 		}
 		else if (opcode == OP_WRQ) 
 		{
-			byte[] buf = new byte[512];
-			boolean result = true;			
-			while (result){
+			try {
+			File file = new File(requestedFile);
+			
+			// Check if file exists
+			if (file.exists()){
+				System.out.println("File already exists.");
+				// Check if file is directory
+				if (file.isDirectory()){
+					send_ERR(sendSocket, 4, "Illegal TFTP operation.");
+					return;
+				}
+				// duplicate file entry
+				send_ERR(sendSocket, 6, "File already exists.");
+				return;
+			}
+			
+			
+			// initialize buffer to read in file
+			byte[] receivedData = new byte[0];
+			byte[] buf = new byte[516];
+			int packetNr = 0;
+			boolean result = true;
+			
+			// build initial ACK
+			ByteBuffer packet = ByteBuffer.allocate(4);
+			short shortOP = OP_ACK;
+			short shortNR = (short) packetNr;
+			packet.putShort(shortOP);
+			packet.putShort(shortNR);
+			
+			// send intial ACK
+			sendSocket.send(new DatagramPacket(packet.array(), packet.position()));
+			packetNr++;
 				
-			//	result = receive_DATA_send_ACK(sendSocket, buf, );
+			// read data until last packet or error received.
+			while (result){
+				// override old content of buffer
+				Arrays.fill(buf, (byte) 0);
+				
+				// read data into buffer (inc. headers)
+				result = receive_DATA_send_ACK(sendSocket, buf,  packetNr);
+				packetNr++;
+	
+				// for each packet concatenate the data without the headers (4bytes cut off)
+				if (result) {
+					System.out.println("Packet received");
+					receivedData = concatenateData(receivedData, Arrays.copyOfRange(buf, 4, buf.length));
+				}
+				// Last transmission: 4-515 bytes
+				else {
+					System.out.println("Last packet");
+					// Get index of zero bytes
+					int index = 0;
+					// skip opcode and search for zero bytes
+					for (int i=4; i<buf.length; i++){
+						System.out.printf("Byte (%d):%x\n",i,buf[i]);
+						if (buf[i] == 0){
+							// index of zero byte
+							index = i;
+							break;
+						}
+					}
+				receivedData = concatenateData(receivedData, Arrays.copyOfRange(buf, 4, index));
+				}
+			}
+						
+			// Check if enough diskspace is available
+			String filename = file.getName();
+			File parentDir = new File(file.getPath().replaceAll(filename, ""));
+			if (parentDir.getFreeSpace() < receivedData.length){
+				System.out.println("Disk full or allocation exceeded");
+				send_ERR(sendSocket, 3, "Disk full or allocation exceeded.");
+				return;
+			}
+			
+			// create file from bytes
+			FileOutputStream out = new FileOutputStream(file);
+			out.write(receivedData);
+			out.close();
+			
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
 		}
 			
 		
 	}
 	
-	// Method to concatenate byte arrays 
-	private byte[] concatenateByteArrays(byte[] a, byte[] b) {
-	    byte[] result = new byte[a.length + b.length]; 
-	    System.arraycopy(a, 0, result, 0, a.length); 
-	    System.arraycopy(b, 0, result, a.length, b.length); 
+	// Method to concatenate the byte data 
+	private byte[] concatenateData(byte[] receivedFile, byte[] dataPacket) {
+	    byte[] result = new byte[receivedFile.length + dataPacket.length]; 
+	    System.arraycopy(receivedFile, 0, result, 0, receivedFile.length); 
+	    System.arraycopy(dataPacket, 0, result, receivedFile.length, dataPacket.length); 
 	    return result;
 	} 
 	
@@ -306,7 +385,7 @@ public class TFTPServer
 				send_ERR(sendSocket, 5, "Unknown transfer ID.");
 			}
 		// In case ACK is not received => not sucessfully transmitted
-		} catch (SocketException e){
+		} catch (SocketTimeoutException e){
 			System.out.printf("Retransmission block %d - No ACK received.\n", packetNumber);
 			return false;
 		// Any other error E.g. access violation
@@ -320,6 +399,40 @@ public class TFTPServer
 	}
 	
 	private boolean receive_DATA_send_ACK(DatagramSocket sendSocket, byte[] buffer, int packetNumber){
+		try {
+			sendSocket.setSoTimeout(150);
+			DatagramPacket receivePacket = new DatagramPacket(buffer, buffer.length);
+			sendSocket.receive(receivePacket);
+									
+			// First two bytes define the OP-Code
+			byte[] recBuf = Arrays.copyOfRange(buffer, 0, 4);
+			ByteBuffer wrap= ByteBuffer.wrap(recBuf);
+			int opcode = wrap.getShort();
+			int blockNr = wrap.getShort();
+			
+			// ERROR: Wrong OP_CODE or Block#
+			if (opcode != OP_DAT || blockNr != packetNumber){
+				send_ERR(sendSocket, 4, "Illegal TFTP operation.");
+			}
+			// send ACK
+			else {
+				wrap.position(0);
+				short shortOP = OP_ACK;
+				wrap.putShort(shortOP);
+				sendSocket.send(new DatagramPacket(recBuf, 4));
+				
+				// Last transmission packet
+				System.out.println("Packet size: " + receivePacket.getLength());
+				if (receivePacket.getLength() < 516) return false;
+			}
+						
+		} catch (SocketTimeoutException e){
+			receive_DATA_send_ACK(sendSocket,buffer,packetNumber);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		// Default : Read more packets
 		return true;
 	}
 	
