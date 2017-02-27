@@ -1,5 +1,9 @@
 package mj223gn_jh223gj_assign3;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -93,7 +97,8 @@ public class TFTPServer
 							HandleRQ(sendSocket,requestedFile.toString(),OP_WRQ);  
 						}
 						else {
-							send_ERR(4, "opcode=" + reqtype + " is invalid.");
+							send_ERR(sendSocket, 4, "opcode=" + reqtype + " is invalid.");
+							System.err.println("Invalid request. Sending an error packet.");
 						}
 						sendSocket.close();
 					} 
@@ -181,38 +186,124 @@ public class TFTPServer
 	 */
 	private void HandleRQ(DatagramSocket sendSocket, String requestedFile, int opcode) 
 	{		
-		/*
+		
 		if(opcode == OP_RRQ)
 		{
-			// See "TFTP Formats" in TFTP specification for the DATA and ACK packet contents
-			boolean result = send_DATA_receive_ACK(params);
+			try {
+				
+				// Read file from directory
+				File file = new File(requestedFile);
+				// Check if file exists
+				if (!file.exists() || file.isDirectory()){
+					send_ERR(sendSocket, 1, "File not found!");
+					return;
+				}
+				
+				// read the file to a byte array
+				FileInputStream fis;
+				byte[] buf = new byte[(int) file.length()];
+	
+				fis = new FileInputStream(file);
+				fis.read(buf);
+					        	        
+				// send all packages
+				int retransmissionCounter = 0;
+				for (int i=0; i< (file.length()/512+1);i++){
+					boolean result = false;
+					// Not the last packet
+					if (i+1< (file.length()/512+1)){
+						System.out.println("FILE < length");
+						result = send_DATA_receive_ACK(sendSocket, i+1,Arrays.copyOfRange(buf,i*512, (i+1)*512));
+						retransmissionCounter = 0;
+					}
+					else {
+						System.out.println("FILE LAST TRANSMISSION");
+						result = send_DATA_receive_ACK(sendSocket, i+1,Arrays.copyOfRange(buf,i*512, (int) file.length()));
+						retransmissionCounter = 0;
+					}
+					
+					if (!result) {
+						if (retransmissionCounter == 5){
+							send_ERR(sendSocket, 0, "Timeout. To many retransmissions.");
+							break;
+						}
+						i--;
+						retransmissionCounter++;
+					}
+				}
+		        fis.close();
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+				send_ERR(sendSocket, 1, "File not found");
+			} catch (IOException e) {
+				// should not occur 
+				e.printStackTrace();
+				send_ERR(sendSocket, 0, e.getMessage());
+			}
+
 		}
 		else if (opcode == OP_WRQ) 
 		{
-			boolean result = receive_DATA_send_ACK(params);
+			//boolean result = receive_DATA_send_ACK(params);
 		}
-		else 
-		{
-			System.err.println("Invalid request. Sending an error packet.");
-			// See "TFTP Formats" in TFTP specification for the ERROR packet contents
-			send_ERR(params);
-			return;
-		}		
-		*/
+			
+		
 	}
 	
 	
 	/**
 	To be implemented
 	*/
-	/*
-	private boolean send_DATA_receive_ACK(params)
-	{return true;}
 	
-	private boolean receive_DATA_send_ACK(params)
-	{return true;}
-	*/
-	private void send_ERR(int errCode, String errMessage){
+	private boolean send_DATA_receive_ACK(DatagramSocket sendSocket, int packetNumber, byte[] data){
+		try {
+			// Normally: 512 + 4 = 516 except for the termination packet.
+			ByteBuffer packet = ByteBuffer.allocate(data.length+4);
+			
+			// convert int to short (cutting of)
+			short shortOP = OP_DAT;
+			short shortNR = (short) packetNumber;
+			
+			// Create packet
+			packet.putShort(shortOP);
+			packet.putShort(shortNR);
+			packet.put(data);
+			
+			System.out.println("Position: "+ packet.position());
+			System.out.println("Position should be: "+ (data.length+4));
+
+			// send the packet
+			sendSocket.send(new DatagramPacket(packet.array(), packet.position()));
+			
+			// wait for ACK
+			byte[] recBuf = new byte[4];
+			DatagramPacket receivePacket= new DatagramPacket(recBuf, recBuf.length);
+			// Timeout if ACK does not arrive after 150ms
+			sendSocket.setSoTimeout(150);
+			sendSocket.receive(receivePacket);
+			
+			// First two bytes define the OP-Code
+			ByteBuffer wrap= ByteBuffer.wrap(recBuf);
+			int opcode = wrap.getShort();
+			int blockNr = wrap.getShort();
+			
+			// In case ACK is not received => not sucessfully transmitted
+			if (opcode != OP_ACK || blockNr != packetNumber){
+				return false;
+			}
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+			return false;
+		}
+		return true;
+	}
+	
+	private boolean receive_DATA_send_ACK(DatagramSocket sendSocket, byte[] buffer, int packetNumber){
+		return true;
+	}
+	
+	private void send_ERR(DatagramSocket sendSocket, int errCode, String errMessage){
 	}
 	
 }
