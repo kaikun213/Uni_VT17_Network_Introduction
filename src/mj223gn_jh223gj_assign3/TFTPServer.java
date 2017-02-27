@@ -436,7 +436,24 @@ public class TFTPServer
 		return true;
 	}
 	
-	private void send_ERR(DatagramSocket sendSocket, int errCode, String errMessage){
+	private void send_ERR(DatagramSocket sendSocket, int errCode, String errMessage) {
+		try {
+			ByteBuffer packet = ByteBuffer.allocate(errMessage.getBytes().length + 4);
+
+			short shortOP = OP_ERR;
+			short shortNR = (short) errCode;
+
+			// Create packet
+			packet.putShort(shortOP);
+			packet.putShort(shortNR);
+			packet.put(errMessage.getBytes());
+
+			// send the packet
+			sendSocket.send(new DatagramPacket(packet.array(), packet.position()));
+		}catch (IOException e){
+			System.out.println("Client is dead");
+		}
+		
 	}
 	
 }
