@@ -1,0 +1,88 @@
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+
+<html>
+<body>
+<form onsubmit="return check()">
+  <input type="file" accept="image/*" name="image">
+  <input type="submit" name="submit" value="upload">
+</form>
+
+<div> 
+Insert the name of the file you want to update (PUT):<input id="input" value="png1.png">  </input>
+</div>
+<div> 
+Insert the relative path of the file (from base dir localhost:4950/images/):<input id="inputPath" value="userImages/">  </input>
+</div>
+<div id="topBar"> <a href ="#" onclick="load_files()"> Show list of files in /images/ </a> </div>
+<div id="choice"></div>
+</body>
+</html>
+
+<script>
+
+var geturl = null;
+  function check(){
+    var file = document.getElementsByName('image')[0];
+
+    var fileName = document.getElementById('input').value;
+    var filePath = document.getElementById('inputPath').value;
+
+    var reader = new FileReader();
+
+    reader.onload = function(e){
+      geturl = $.ajax({
+        method: 'put',
+        url: 'http://localhost:4950/images/'+filePath+fileName,
+        data: {
+          html: e.target.result
+        },
+        success: function(data){
+
+        console.log(geturl.getAllResponseHeaders());
+
+	window.location.href = 'http://' + geturl.getResponseHeader('Location');
+
+	alert('Success! File uploaded. Redirecting to the image!');
+
+        },
+        error: function(xhr){
+
+            window.location.href = 'http://' + geturl.getResponseHeader('Location');
+
+
+          alert('error');
+        }
+      })
+    }
+
+    reader.readAsDataURL(file.files[0]);
+    return false;
+  }
+
+var files = null;
+function load_files() {
+    var fileName = document.getElementById('input');
+	files = $.ajax({
+		method: 'GET',
+		url: 'http://localhost:4950/images/',
+		success: function(data){
+			console.log(files);
+			console.log(fileName.value);
+			console.log(data);
+			console.log('files:' + files.responseText);
+			//document.getElementById("choice").innerHTML='<object type="text/html" data="'+ files.responseText + '" ></object>';
+document.getElementById('choice').innerHTML = files.responseText;
+		},
+		error: function(xhr){
+		  console.log(xhr);
+		  alert('error');
+		}
+ 	})
+
+
+     
+}
+
+</script>
+

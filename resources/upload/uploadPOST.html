@@ -1,0 +1,51 @@
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+<form onsubmit="return check()">
+  <input type="file" accept="image/*" name="image">
+  <input type="submit" name="submit" value="upload">
+</form>
+
+
+<script>
+
+var geturl = null;
+  function check(){
+    var file = document.getElementsByName('image')[0];
+
+    var reader = new FileReader();
+
+    reader.onload = function(e){
+      geturl = $.ajax({
+        method: 'post',
+        url: 'http://localhost:4950/images/',
+        data: {
+          image: e.target.result
+        },
+        success: function(data){
+
+        console.log(geturl.getAllResponseHeaders());
+
+	//var req = new XMLHttpRequest();
+	//req.open('GET', document.location, false);
+	//req.send(null);
+	//var headers = req.getAllResponseHeaders().toLowerCase();
+	//alert(headers);
+	window.location.href = 'http://' + geturl.getResponseHeader('Location');
+
+	alert('Success! Uploaded to localhost:4950/images/directory. Redirecting to the image!');
+
+        },
+        error: function(xhr){
+            window.location.href = 'http://' + geturl.getResponseHeader('Location');
+
+
+          alert('error');
+        }
+      })
+    }
+
+    reader.readAsDataURL(file.files[0]);
+    return false;
+  }
+
+</script>
+
