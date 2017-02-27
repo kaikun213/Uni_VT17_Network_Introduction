@@ -1,6 +1,8 @@
 package mj223gn_jh223gj_assign3;
 
+import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.SocketException;
@@ -105,10 +107,13 @@ public class TFTPServer
 	private InetSocketAddress receiveFrom(DatagramSocket socket, byte[] buf) 
 	{
 		// Create datagram packet
+		DatagramPacket requestPacket = new DatagramPacket(buf, buf.length);
 		
 		// Receive packet
+		socket.receive(requestPacket);
 		
 		// Get client address and port from the packet
+		InetSocketAddress socketAddress = new InetSocketAddress(requestPacket.getAddress(), requestPacket.getPort());
 		
 		return socketAddress;
 	}
