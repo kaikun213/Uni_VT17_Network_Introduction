@@ -186,7 +186,6 @@ public class TFTPServer
 	 */
 	private void HandleRQ(DatagramSocket sendSocket, String requestedFile, int opcode) 
 	{		
-		
 		if(opcode == OP_RRQ)
 		{
 			try {
@@ -212,16 +211,16 @@ public class TFTPServer
 					boolean result = false;
 					// Not the last packet
 					if (i+1< (file.length()/512+1)){
-						System.out.println("FILE < length");
 						result = send_DATA_receive_ACK(sendSocket, i+1,Arrays.copyOfRange(buf,i*512, (i+1)*512));
 						retransmissionCounter = 0;
 					}
+					// Last transmission (length of packet < 512)
 					else {
-						System.out.println("FILE LAST TRANSMISSION");
 						result = send_DATA_receive_ACK(sendSocket, i+1,Arrays.copyOfRange(buf,i*512, (int) file.length()));
 						retransmissionCounter = 0;
 					}
 					
+					// Re-sent or Timeout if no ACK received
 					if (!result) {
 						if (retransmissionCounter == 5){
 							send_ERR(sendSocket, 0, "Timeout. To many retransmissions.");
@@ -236,7 +235,7 @@ public class TFTPServer
 				e.printStackTrace();
 				send_ERR(sendSocket, 1, "File not found");
 			} catch (IOException e) {
-				// should not occur 
+				// should not occur! 
 				e.printStackTrace();
 				send_ERR(sendSocket, 0, e.getMessage());
 			}
@@ -244,11 +243,24 @@ public class TFTPServer
 		}
 		else if (opcode == OP_WRQ) 
 		{
-			//boolean result = receive_DATA_send_ACK(params);
+			byte[] buf = new byte[512];
+			boolean result = true;			
+			while (result){
+				
+			//	result = receive_DATA_send_ACK(sendSocket, buf, );
+			}
 		}
 			
 		
 	}
+	
+	// Method to concatenate byte arrays 
+	private byte[] concatenateByteArrays(byte[] a, byte[] b) {
+	    byte[] result = new byte[a.length + b.length]; 
+	    System.arraycopy(a, 0, result, 0, a.length); 
+	    System.arraycopy(b, 0, result, a.length, b.length); 
+	    return result;
+	} 
 	
 	
 	/**
@@ -268,9 +280,6 @@ public class TFTPServer
 			packet.putShort(shortOP);
 			packet.putShort(shortNR);
 			packet.put(data);
-			
-			System.out.println("Position: "+ packet.position());
-			System.out.println("Position should be: "+ (data.length+4));
 
 			// send the packet
 			sendSocket.send(new DatagramPacket(packet.array(), packet.position()));
@@ -287,14 +296,25 @@ public class TFTPServer
 			int opcode = wrap.getShort();
 			int blockNr = wrap.getShort();
 			
-			// In case ACK is not received => not sucessfully transmitted
+			// ERROR: Wrong OP_CODE or Block#
 			if (opcode != OP_ACK || blockNr != packetNumber){
-				return false;
+				send_ERR(sendSocket, 4, "Illegal TFTP operation.");
 			}
 			
-		} catch (IOException e) {
-			e.printStackTrace();
+			// ERROR: transferId changed => no retransmission
+			if (receivePacket.getPort() !=  sendSocket.getPort()){
+				send_ERR(sendSocket, 5, "Unknown transfer ID.");
+			}
+		// In case ACK is not received => not sucessfully transmitted
+		} catch (SocketException e){
+			System.out.printf("Retransmission block %d - No ACK received.\n", packetNumber);
 			return false;
+		// Any other error E.g. access violation
+		} catch (IOException e) {
+			System.out.println("Access Violation or other IO-Problems");
+			send_ERR(sendSocket, 2, "Access violation.");
+			e.printStackTrace();
+			return true;
 		}
 		return true;
 	}
