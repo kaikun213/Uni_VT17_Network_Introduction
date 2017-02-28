@@ -8,7 +8,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.SocketException;
@@ -20,6 +19,7 @@ public class TFTPServer
 {
 	public static final int TFTPPORT = 4970;
 	public static final int BUFSIZE = 516;
+	public static final int DATASIZE = BUFSIZE -4;
 	public static final String READDIR = "resources/tftp/read/"; //custom address at your PC
 	public static final String WRITEDIR = "resources/tftp/write/"; //custom address at your PC
 	// OP codes
@@ -191,7 +191,6 @@ public class TFTPServer
 		if(opcode == OP_RRQ)
 		{
 			try {
-				
 				// Read file from directory
 				File file = new File(requestedFile);
 				// Check if file exists
@@ -209,16 +208,16 @@ public class TFTPServer
 					        	        
 				// send all packages
 				int retransmissionCounter = 0;
-				for (int i=0; i< (file.length()/512+1);i++){
+				for (int i=0; i< (file.length()/DATASIZE+1);i++){
 					boolean result = false;
 					// Not the last packet
-					if (i+1< (file.length()/512+1)){
-						result = send_DATA_receive_ACK(sendSocket, i+1,Arrays.copyOfRange(buf,i*512, (i+1)*512));
+					if (i+1< (file.length()/DATASIZE+1)){
+						result = send_DATA_receive_ACK(sendSocket, i+1,Arrays.copyOfRange(buf,i*DATASIZE, (i+1)*DATASIZE));
 						retransmissionCounter = 0;
 					}
 					// Last transmission (length of packet < 512)
 					else {
-						result = send_DATA_receive_ACK(sendSocket, i+1,Arrays.copyOfRange(buf,i*512, (int) file.length()));
+						result = send_DATA_receive_ACK(sendSocket, i+1,Arrays.copyOfRange(buf,i*DATASIZE, (int) file.length()));
 						retransmissionCounter = 0;
 					}
 					
@@ -264,7 +263,7 @@ public class TFTPServer
 			
 			// initialize buffer to read in file
 			byte[] receivedData = new byte[0];
-			byte[] buf = new byte[516];
+			byte[] buf = new byte[BUFSIZE];
 			int packetNr = 0;
 			boolean result = true;
 			
@@ -423,7 +422,7 @@ public class TFTPServer
 				
 				// Last transmission packet
 				System.out.println("Packet size: " + receivePacket.getLength());
-				if (receivePacket.getLength() < 516) return false;
+				if (receivePacket.getLength() < BUFSIZE) return false;
 			}
 						
 		} catch (SocketTimeoutException e){
