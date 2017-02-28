@@ -28,6 +28,8 @@ public class TFTPServer
 	public static final int OP_DAT = 3;
 	public static final int OP_ACK = 4;
 	public static final int OP_ERR = 5;
+	
+	public static int retransmissionCounter = 0;
 
 	public static void main(String[] args) {
 		if (args.length > 0) 
@@ -207,7 +209,7 @@ public class TFTPServer
 				fis.read(buf);
 					        	        
 				// send all packages
-				int retransmissionCounter = 0;
+				retransmissionCounter = 0;
 				for (int i=0; i< (file.length()/DATASIZE+1);i++){
 					boolean result = false;
 					// Not the last packet
@@ -280,12 +282,20 @@ public class TFTPServer
 				
 			// read data until last packet or error received.
 			while (result){
+				// reset retransmissionCounter
+				retransmissionCounter = 0;
 				// override old content of buffer
 				Arrays.fill(buf, (byte) 0);
 				
 				// read data into buffer (inc. headers)
 				result = receive_DATA_send_ACK(sendSocket, buf,  packetNr);
 				packetNr++;
+				
+				// Check if retransmissions timed out
+				if (retransmissionCounter == 5){
+					send_ERR(sendSocket, 0, "Timeout. To many retransmissions.");
+					return;
+				}
 	
 				// for each packet concatenate the data without the headers (4bytes cut off)
 				if (result) {
@@ -426,7 +436,11 @@ public class TFTPServer
 			}
 						
 		} catch (SocketTimeoutException e){
-			receive_DATA_send_ACK(sendSocket,buffer,packetNumber);
+			retransmissionCounter++;
+			// try again to receive packet
+			if (retransmissionCounter < 5) return receive_DATA_send_ACK(sendSocket,buffer,packetNumber);
+			// else do not continue reading and stop thread execution + send error in upper loop
+			else return false;
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
