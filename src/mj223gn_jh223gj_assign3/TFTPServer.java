@@ -264,7 +264,7 @@ public class TFTPServer
 			
 			
 			// initialize buffer to read in file
-			byte[] receivedData = new byte[0];
+			ByteArrayOutputStream receivedData = new ByteArrayOutputStream();
 			byte[] buf = new byte[BUFSIZE];
 			int packetNr = 0;
 			boolean result = true;
@@ -300,7 +300,7 @@ public class TFTPServer
 				// for each packet concatenate the data without the headers (4bytes cut off)
 				if (result) {
 					System.out.println("Packet received");
-					receivedData = concatenateData(receivedData, Arrays.copyOfRange(buf, 4, buf.length));
+					receivedData.write(buf, 4, buf.length-4);
 				}
 				// Last transmission: 4-515 bytes
 				else {
@@ -316,14 +316,14 @@ public class TFTPServer
 							break;
 						}
 					}
-				receivedData = concatenateData(receivedData, Arrays.copyOfRange(buf, 4, index));
+				receivedData.write(buf, 4, index-4);
 				}
 			}
 						
 			// Check if enough diskspace is available
 			String filename = file.getName();
 			File parentDir = new File(file.getPath().replaceAll(filename, ""));
-			if (parentDir.getFreeSpace() < receivedData.length){
+			if (parentDir.getFreeSpace() < receivedData.size()){
 				System.out.println("Disk full or allocation exceeded");
 				send_ERR(sendSocket, 3, "Disk full or allocation exceeded.");
 				return;
@@ -331,7 +331,7 @@ public class TFTPServer
 			
 			// create file from bytes
 			FileOutputStream out = new FileOutputStream(file);
-			out.write(receivedData);
+			receivedData.writeTo(out);
 			out.close();
 			
 			} catch (IOException e) {
@@ -341,15 +341,6 @@ public class TFTPServer
 			
 		
 	}
-	
-	// Method to concatenate the byte data 
-	private byte[] concatenateData(byte[] receivedFile, byte[] dataPacket) {
-	    byte[] result = new byte[receivedFile.length + dataPacket.length]; 
-	    System.arraycopy(receivedFile, 0, result, 0, receivedFile.length); 
-	    System.arraycopy(dataPacket, 0, result, receivedFile.length, dataPacket.length); 
-	    return result;
-	} 
-	
 	
 	/**
 	To be implemented
