@@ -154,6 +154,22 @@ We use the original socket as a kind of server socket accepting the requests on 
 \newpage
 \section{Problem two}
 
+In figure \ref{TFTP_READ_WRITE} we send and receive multiple large files. The task says sending but it is not clear if it means sends from client or server. However both is on the screenshot with files larger then 512 bytes. The case of files which are so large that they exceed the package number of a short is thought of but not mentioned in the specification. Therefore its left out and assumed out of scope in this assignment. 
+
+We implemented a timeout mechanism that the sending socket times out if it does not receive the next DATA/ACK packet in 150ms. If it times out it will try to retransmit or simply tries to receive again. We have a retransmission counter which will be increased and stops the execution after 5 retransmissions/waiting-times so that no infinite loop will occur. 
+
+The execution of a write-request can be seen also on figure \ref{TFTP_READ_WRITE}. 
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=0.95\textwidth,keepaspectratio]{img/ReadWriteMultipleFiles.png} 
+	\caption{Read and write multiple large files. On the left hand side we see the tftp client transfering files from the home directory or reading files from the server. We can see the bytes transfered.}
+	\label{TFTP_READ_WRITE}
+\end{figure}
+
+
+
+
 List of all implemented server responses
 \begin{itemize}
 	\item 200: OK
