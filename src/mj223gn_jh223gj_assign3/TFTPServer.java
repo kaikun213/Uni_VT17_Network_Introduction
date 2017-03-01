@@ -30,6 +30,8 @@ public class TFTPServer
 	public static final int OP_ERR = 5;
 	
 	public static final int MAXRETRANSMISSIONS = 5;
+	//Directory max size = 10MB
+	private final long DIRECTORY_FULL = 10000000;
 	
 	public static void main(String[] args) {
 		if (args.length > 0) 
@@ -238,7 +240,6 @@ public class TFTPServer
 				}
 		        fis.close();
 			} catch (FileNotFoundException e) {
-				e.printStackTrace();
 				send_ERR(sendSocket, 1, "File not found.");
 			} catch (IOException e) {
 				// should not occur! 
@@ -342,9 +343,7 @@ public class TFTPServer
 			}
 						
 			// Check if enough diskspace is available
-			String filename = file.getName();
-			File parentDir = new File(file.getPath().replaceAll(filename, ""));
-			if (parentDir.getFreeSpace() < receivedData.size()){
+			if (getFreeSpaceInDirectory() < receivedData.size()){
 				System.out.println("Disk full or allocation exceeded");
 				send_ERR(sendSocket, 3, "Disk full or allocation exceeded.");
 				return;
@@ -356,9 +355,9 @@ public class TFTPServer
 			out.close();
 			
 			} catch (IOException e) {
-				// unknown IO-ERROR when sending initial ACK or writing to file
-				send_ERR(sendSocket, 0, e.getMessage());
-				e.printStackTrace();
+				// Access violation when trying to write to file.
+				send_ERR(sendSocket, 2, "Access violation.");
+				System.out.println("Access violation.");
 			}
 		}
 			
@@ -421,7 +420,6 @@ public class TFTPServer
 		} catch (IOException e) {
 			System.out.println("Access Violation or other IO-Problems");
 			send_ERR(sendSocket, 2, "Access violation.");
-			e.printStackTrace();
 			throw new ConnectionTerminationException();
 		}
 		
@@ -477,7 +475,7 @@ public class TFTPServer
 	
 	private void send_ERR(DatagramSocket sendSocket, int errCode, String errMessage) {
 		try {
-			ByteBuffer packet = ByteBuffer.allocate(errMessage.getBytes().length + 4);
+			ByteBuffer packet = ByteBuffer.allocate(errMessage.getBytes().length + 5);
 
 			short shortOP = OP_ERR;
 			short shortNR = (short) errCode;
@@ -486,6 +484,7 @@ public class TFTPServer
 			packet.putShort(shortOP);
 			packet.putShort(shortNR);
 			packet.put(errMessage.getBytes());
+			packet.put((byte) 0);
 
 			// send the packet
 			sendSocket.send(new DatagramPacket(packet.array(), packet.position()));
@@ -493,6 +492,16 @@ public class TFTPServer
 			System.out.println("Client is dead");
 		}
 		
+	}
+	private long getFreeSpaceInDirectory(){
+		long usedSpace = 0;
+
+		File dir = new File(WRITEDIR);
+
+		for (File file : dir.listFiles()){
+			usedSpace += file.length();
+		}
+		return DIRECTORY_FULL - usedSpace;
 	}
 	
 }

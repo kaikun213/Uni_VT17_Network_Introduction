@@ -140,7 +140,7 @@ Work percentage 50\%
 
 In figure \ref{TFTP_READ} we show a successful RRQ (Read-Request) to the implemented tftp server retrieving a small test-text file.
 \newline \noindent
-We use the original socket as a kind of server socket accepting the requests on port 4970 (Usually 69 in FTP) and then after receiving a request, either write or read, we open a new thread for the specific client connection. In this thread we use the sending socket which acquires a free port (zero port indicates to get a random free port e.g. 5800) and then send the new specified port to the client in the ACK (WRQ) or DATA (RRQ) packet.  This is defined in the TFTP-Specification that the initialization will be on a predefined port and then the server communicates the used port to the client. This way we can also handle multiple client requests since the original socket is freed after handling the client in a separate thread. Also the send socket connects to the remote port and address of the client given from the request.
+We use the original socket as a kind of server socket accepting the requests on port 4970 (Usually 69 in TFTP) and then after receiving a request, either write or read, we open a new thread for the specific client connection. In this thread we use the sending socket which acquires a free port (zero port indicates to get a random free port e.g. 5800) and then send the new specified port to the client in the ACK (WRQ) or DATA (RRQ) packet.  This is defined in the TFTP-Specification that the initialization will be on a predefined port and then the server communicates the used port to the client. This way we can also handle multiple client requests since the original socket is freed after handling the client in a separate thread. Also the send socket connects to the remote port and address of the client given from the request.
 
 \begin{figure}[h!]
 	\centering
@@ -170,7 +170,7 @@ The execution of a write-request can be seen also on figure \ref{TFTP_READ_WRITE
 \newpage
 \subsection{VG.1 wireshark analyze}
 
-In figure \ref{ws1} we can see the line marked where the client, in this case with the localhost - 127.0.0.1 - src-address from the randomly choosen free port 53874 is sending a UDP Packet to the server. The server address is also localhost - 127.0.0.1 - dest-address and the port is the chosen 4970, which is usually 69 for the FTP protocols. In the bottom rows we can see the content of the package and beside all the headers of the lower layers the data of the UDP packet is marked. In the data we can see it start with the 2Bytes 00 01 which is defined in the TFTP-Specification as the operational code for a read request. The next bytes, in this case 8, until a zero byte are defined as the filename string. After the zero byte the mode will be defined by the following bytes closed with a zero byte again. In this case we can see that the OP-Code is RRQ, the filename of the requested file is test.txt and the mode is octet.
+In figure \ref{ws1} we can see the line marked where the client, in this case with the localhost - 127.0.0.1 - src-address from the randomly choosen free port 53874 is sending a UDP Packet to the server. The server address is also localhost - 127.0.0.1 - dest-address and the port is the chosen 4970, which is usually 69 for the TFTP protocols. In the bottom rows we can see the content of the package and beside all the headers of the lower layers the data of the UDP packet is marked. In the data we can see it start with the 2Bytes 00 01 which is defined in the TFTP-Specification as the operational code for a read request. The next bytes, in this case 8, until a zero byte are defined as the filename string. After the zero byte the mode will be defined by the following bytes closed with a zero byte again. In this case we can see that the OP-Code is RRQ, the filename of the requested file is test.txt and the mode is octet.
 \newline \noindent
 \newline \noindent
 In figure \ref{ws2} we can see the line marked where the server answers to the clients read request. We see that the destination and source address are again localhost, but would have switched. The switch we can identify on the ports, while the client port 53874 is now the receiving port the sending port from the server changed to 53964. This tells the client that this will be the port on the server side used for the rest of the file transmission. The initial port 4970 is only used to handle new requests. In the bottom rows we can see the data send back from the server. It starts with the 2Bytes 00 03 which is the OP-Code for DATA packages recording to the TFTP-Specification. The next two bytes 00 01 indicate the package number. In this case it is the first data package sent. It follows the actual file-data. In this case it is a text file and simply transfers the ASCII-Characters saved in it, "This is a test.".
@@ -203,5 +203,58 @@ In figure \ref{ws3} we can see the line marked where the client sends an acknowl
 
 \section{Problem three}
 
+In the figure \ref{error 0} we can se how our server sends an error packet for when the connection times out. The first two bytes is 05 to show that is an error packet. 
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=0.95\textwidth,keepaspectratio]{img/error0.jpg} 
+	\caption{}
+	\label{error 0}
+\end{figure}
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=0.95\textwidth,keepaspectratio]{img/error1.jpg} 
+	\caption{}
+	\label{error 1}
+\end{figure}
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=0.95\textwidth,keepaspectratio]{img/error2.jpg} 
+	\caption{}
+	\label{error 2}
+\end{figure}
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=0.95\textwidth,keepaspectratio]{img/error6.jpg} 
+	\caption{}
+	\label{error 6}
+\end{figure}
+
+\newpage
+
+\subsection{VG.2 Remaining error codes}
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=0.95\textwidth,keepaspectratio]{img/error3.jpg} 
+	\caption{}
+	\label{error 3}
+\end{figure}
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=0.95\textwidth,keepaspectratio]{img/error4.jpg} 
+	\caption{}
+	\label{error 4}
+\end{figure}
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=0.95\textwidth,keepaspectratio]{img/error5.jpg} 
+	\caption{}
+	\label{error 5}
+\end{figure}
 
 \end{document}
