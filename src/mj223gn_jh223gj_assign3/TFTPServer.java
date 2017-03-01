@@ -396,7 +396,8 @@ public class TFTPServer
 			
 			// ERROR: Wrong OP_CODE => error + terminate connection
 			if (opcode != OP_ACK ){
-				send_ERR(sendSocket, 4, "Illegal TFTP operation.");
+				// If client sends error => only terminate connection
+				if (opcode != OP_ERR) send_ERR(sendSocket, 4, "Illegal TFTP operation.");
 				throw new ConnectionTerminationException();
 			}
 			
@@ -440,9 +441,11 @@ public class TFTPServer
 			int opcode = wrap.getShort();
 			int blockNr = wrap.getShort();
 			
+			
 			// ERROR: Wrong OP_CODE
 			if (opcode != OP_DAT ){
-				send_ERR(sendSocket, 4, "Illegal TFTP operation.");
+				// If client sends error => only terminate connection
+				if (opcode != OP_ERR) send_ERR(sendSocket, 4, "Illegal TFTP operation.");
 				throw new ConnectionTerminationException();
 			}
 			
