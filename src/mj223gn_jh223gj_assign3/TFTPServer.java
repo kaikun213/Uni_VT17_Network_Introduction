@@ -29,8 +29,8 @@ public class TFTPServer
 	public static final int OP_ACK = 4;
 	public static final int OP_ERR = 5;
 	
-	public static int retransmissionCounter = 0;
-
+	public static final int MAXRETRANSMISSIONS = 5;
+	
 	public static void main(String[] args) {
 		if (args.length > 0) 
 		{
@@ -190,6 +190,9 @@ public class TFTPServer
 	 */
 	private void HandleRQ(DatagramSocket sendSocket, String requestedFile, int opcode) 
 	{		
+		/* ******************************************************** */
+		/* *********************** READ RRQ *********************** */
+		/* ******************************************************** */
 		if(opcode == OP_RRQ)
 		{
 			try {
@@ -209,7 +212,7 @@ public class TFTPServer
 				fis.read(buf);
 					        	        
 				// send all packages
-				retransmissionCounter = 0;
+				int retransmissionCounter = 0;
 				for (int i=0; i< (file.length()/DATASIZE+1);i++){
 					boolean result = false;
 					// Not the last packet
@@ -225,7 +228,7 @@ public class TFTPServer
 					
 					// Re-sent or Timeout if no ACK received
 					if (!result) {
-						if (retransmissionCounter == 5){
+						if (retransmissionCounter == MAXRETRANSMISSIONS){
 							send_ERR(sendSocket, 0, "Timeout. To many retransmissions.");
 							break;
 						}
@@ -241,9 +244,15 @@ public class TFTPServer
 				// should not occur! 
 				e.printStackTrace();
 				send_ERR(sendSocket, 0, e.getMessage());
+			} catch (ConnectionTerminationException e){
+				// connection closed, process interrupted
 			}
 
 		}
+		
+		/* ******************************************************** */
+		/* **********************  WRITE RRQ ********************** */
+		/* ******************************************************** */
 		else if (opcode == OP_WRQ) 
 		{
 			try {
@@ -280,43 +289,55 @@ public class TFTPServer
 			sendSocket.send(new DatagramPacket(packet.array(), packet.position()));
 			packetNr++;
 				
+			// Initialize retransmissionCounter
+			int retransmissionCounter = 0;
+			
 			// read data until last packet or error received.
 			while (result){
-				// reset retransmissionCounter
-				retransmissionCounter = 0;
-				// override old content of buffer
-				Arrays.fill(buf, (byte) 0);
 				
-				// read data into buffer (inc. headers)
-				result = receive_DATA_send_ACK(sendSocket, buf,  packetNr);
-				packetNr++;
-				
-				// Check if retransmissions timed out
-				if (retransmissionCounter == 5){
-					send_ERR(sendSocket, 0, "Timeout. To many retransmissions.");
-					return;
-				}
-	
-				// for each packet concatenate the data without the headers (4bytes cut off)
-				if (result) {
-					System.out.println("Packet received");
-					receivedData.write(buf, 4, buf.length-4);
-				}
-				// Last transmission: 4-515 bytes
-				else {
-					System.out.println("Last packet");
-					// Get index of zero bytes
-					int index = 0;
-					// skip opcode and search for zero bytes
-					for (int i=4; i<buf.length; i++){
-						System.out.printf("Byte (%d):%x\n",i,buf[i]);
-						if (buf[i] == 0){
-							// index of zero byte
-							index = i;
-							break;
-						}
+				try {
+					// override old content of buffer
+					Arrays.fill(buf, (byte) 0);
+					
+					// read data into buffer (inc. headers)
+					result = receive_DATA_send_ACK(sendSocket, buf,  packetNr);
+					packetNr++;
+		
+					// for each packet concatenate the data without the headers (4bytes cut off)
+					if (result) {
+						System.out.println("Packet received");
+						receivedData.write(buf, 4, buf.length-4);
 					}
-				receivedData.write(buf, 4, index-4);
+					// Last transmission: 4-515 bytes
+					else {
+						System.out.println("Last packet");
+						// Get index of zero bytes
+						int index = 0;
+						// skip opcode and search for zero bytes
+						for (int i=4; i<buf.length; i++){
+							if (buf[i] == 0){
+								// index of zero byte
+								index = i;
+								break;
+							}
+						}
+						receivedData.write(buf, 4, index-4);
+					}
+					
+					// successful read => reset retransmissionCounter
+					retransmissionCounter = 0;
+					
+				} catch (SocketTimeoutException e){
+					retransmissionCounter++;
+					// Check if timed out to often
+					if (retransmissionCounter == MAXRETRANSMISSIONS){
+						send_ERR(sendSocket, 0, "Timeout. Waited to long for DAT-Packet.");
+						return;
+					}
+					// Try again to receive packet
+					result = true;
+				} catch (ConnectionTerminationException e){
+					return;
 				}
 			}
 						
@@ -335,6 +356,8 @@ public class TFTPServer
 			out.close();
 			
 			} catch (IOException e) {
+				// unknown IO-ERROR when sending initial ACK or writing to file
+				send_ERR(sendSocket, 0, e.getMessage());
 				e.printStackTrace();
 			}
 		}
@@ -342,11 +365,7 @@ public class TFTPServer
 		
 	}
 	
-	/**
-	To be implemented
-	*/
-	
-	private boolean send_DATA_receive_ACK(DatagramSocket sendSocket, int packetNumber, byte[] data){
+	private boolean send_DATA_receive_ACK(DatagramSocket sendSocket, int packetNumber, byte[] data) throws ConnectionTerminationException{
 		try {
 			// Normally: 512 + 4 = 516 except for the termination packet.
 			ByteBuffer packet = ByteBuffer.allocate(data.length+4);
@@ -375,30 +394,41 @@ public class TFTPServer
 			int opcode = wrap.getShort();
 			int blockNr = wrap.getShort();
 			
-			// ERROR: Wrong OP_CODE or Block#
-			if (opcode != OP_ACK || blockNr != packetNumber){
+			// ERROR: Wrong OP_CODE => error + terminate connection
+			if (opcode != OP_ACK ){
 				send_ERR(sendSocket, 4, "Illegal TFTP operation.");
+				throw new ConnectionTerminationException();
 			}
 			
-			// ERROR: transferId changed => no retransmission
+			// ERROR: transferId changed => error message sent to other port but connection maintained
 			if (receivePacket.getPort() !=  sendSocket.getPort()){
-				send_ERR(sendSocket, 5, "Unknown transfer ID.");
+				DatagramSocket invalidPort = new DatagramSocket(0);
+				invalidPort.connect(new InetSocketAddress(sendSocket.getInetAddress(), receivePacket.getPort()));
+				send_ERR(invalidPort, 5, "Unknown transfer ID.");
 			}
+			
+			// Not correct PacketNumber => retransmission
+			if (blockNr != packetNumber){
+				return false;
+			}
+			
 		// In case ACK is not received => not sucessfully transmitted
 		} catch (SocketTimeoutException e){
 			System.out.printf("Retransmission block %d - No ACK received.\n", packetNumber);
 			return false;
-		// Any other error E.g. access violation
+		// Any other error E.g. access violation =>  error + terminate connection
 		} catch (IOException e) {
 			System.out.println("Access Violation or other IO-Problems");
 			send_ERR(sendSocket, 2, "Access violation.");
 			e.printStackTrace();
-			return true;
+			throw new ConnectionTerminationException();
 		}
+		
+		// DEFAULT: send next package (ACK received)
 		return true;
 	}
 	
-	private boolean receive_DATA_send_ACK(DatagramSocket sendSocket, byte[] buffer, int packetNumber){
+	private boolean receive_DATA_send_ACK(DatagramSocket sendSocket, byte[] buffer, int packetNumber) throws SocketTimeoutException, ConnectionTerminationException{
 		try {
 			sendSocket.setSoTimeout(150);
 			DatagramPacket receivePacket = new DatagramPacket(buffer, buffer.length);
@@ -410,10 +440,17 @@ public class TFTPServer
 			int opcode = wrap.getShort();
 			int blockNr = wrap.getShort();
 			
-			// ERROR: Wrong OP_CODE or Block#
-			if (opcode != OP_DAT || blockNr != packetNumber){
+			// ERROR: Wrong OP_CODE
+			if (opcode != OP_DAT ){
 				send_ERR(sendSocket, 4, "Illegal TFTP operation.");
+				throw new ConnectionTerminationException();
 			}
+			
+			// ERROR: Wrong Block# => No ACK => continue receiving
+			if (blockNr != packetNumber){
+				throw new SocketTimeoutException();
+			}
+			
 			// send ACK
 			else {
 				wrap.position(0);
@@ -426,13 +463,8 @@ public class TFTPServer
 				if (receivePacket.getLength() < BUFSIZE) return false;
 			}
 						
-		} catch (SocketTimeoutException e){
-			retransmissionCounter++;
-			// try again to receive packet
-			if (retransmissionCounter < 5) return receive_DATA_send_ACK(sendSocket,buffer,packetNumber);
-			// else do not continue reading and stop thread execution + send error in upper loop
-			else return false;
 		} catch (IOException e) {
+			if (e instanceof SocketTimeoutException) throw new SocketTimeoutException();
 			e.printStackTrace();
 		}
 		
