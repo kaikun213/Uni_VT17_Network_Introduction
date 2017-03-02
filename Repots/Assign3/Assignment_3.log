@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.14159265-2.6-0.99996 (MiKTeX 2.9 64-bit) (preloaded format=xelatex 2017.1.23)  1 MAR 2017 23:31
+This is XeTeX, Version 3.14159265-2.6-0.99996 (MiKTeX 2.9 64-bit) (preloaded format=xelatex 2017.1.23)  2 MAR 2017 10:18
 entering extended mode
 **./Assignment_3.tex
 (Assignment_3.tex
@@ -526,10 +526,6 @@ LaTeX Info: Redefining \nameref on input line 105.
 \@outlinefile=\write3
 \openout3 = `Assignment_3.out'.
 
-
-
-Package hyperref Warning: Rerun to get /PageLabels entry.
-
 *geometry* verbose mode - [ newgeometry ] result:
 * driver: pdftex
 * paper: a4paper
@@ -561,6 +557,7 @@ Package hyperref Warning: Rerun to get /PageLabels entry.
 * \@mparswitchfalse
 * \@reversemarginfalse
 * (1in=72.27pt=25.4mm, 1cm=28.453pt)
+
 
 
 LaTeX Warning: No \author given.
@@ -628,100 +625,55 @@ File: img/Line3Wireshark.png Graphic file (type QTm)
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
-[4]
-
-LaTeX Warning: Reference `error 0' on page 5 undefined on input line 206.
-
+[4] [5] [6]
 File: img/error0.jpg Graphic file (type QTm)
-<use  "img/error0.jpg" >
-
-LaTeX Warning: `!h' float specifier changed to `!ht'.
-
+ <use  "img/error0.jpg" >
+File: img/errorPacket.jpg Graphic file (type QTm)
+ <use  "img/errorPacket.jpg" >
 File: img/error1.jpg Graphic file (type QTm)
+
 <use  "img/error1.jpg" >
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
+[7
+
+]
 File: img/error2.jpg Graphic file (type QTm)
-<use  "img/error2.jpg" >
-
-LaTeX Warning: `!h' float specifier changed to `!ht'.
-
+ <use  "img/error2.jpg" >
 File: img/error6.jpg Graphic file (type QTm)
-<use  "img/error6.jpg" >
+ <use  "img/error6.jpg" >
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
-[5]
+[8]
 File: img/error3.jpg Graphic file (type QTm)
  <use  "img/error3.jpg" >
 
-LaTeX Warning: `!h' float specifier changed to `!ht'.
+LaTeX Warning: Reference `error4' on page 9 undefined on input line 262.
 
-
-LaTeX Warning: File `img/error4.jpg' not found on input line 248.
-
-! Unable to load picture or PDF file 'img/error4.jpg'.
-<to be read again> 
-                   }
-l.248 ...extwidth,keepaspectratio]{img/error4.jpg}
-                                                  
-The requested image couldn't be read because
-it was not a recognized image format.
-
-
-! Package graphics Error: Division by 0.
-
-See the graphics package documentation for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.248 ...extwidth,keepaspectratio]{img/error4.jpg}
-                                                  
-Your command was ignored.
-Type  I <command> <return>  to replace it with another command,
-or  <return>  to continue without it.
-
-File: img/error4.jpg Graphic file (type QTm)
-<use  "img/error4.jpg" >
-! Unable to load picture or PDF file 'img/error4.jpg'.
-<to be read again> 
-                   \GXT@clipend 
-l.248 ...extwidth,keepaspectratio]{img/error4.jpg}
-                                                  
-The requested image couldn't be read because
-it was not a recognized image format.
-
-
-LaTeX Warning: `!h' float specifier changed to `!ht'.
-
+[9]
 File: img/error5.jpg Graphic file (type QTm)
-<use  "img/error5.jpg" >
-
-LaTeX Warning: `!h' float specifier changed to `!ht'.
-
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 260.
-[6] [7] [8]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 260.
+ <use  "img/error5.jpg" > [10] (Assignment_3.bbl)
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 283.
+ [11]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 283.
  (Assignment_3.aux)
-Package atveryend Info: Empty hook `AtVeryEndDocument' on input line 260.
-Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 260.
+Package atveryend Info: Empty hook `AtVeryEndDocument' on input line 283.
+Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 283.
 
 
 LaTeX Warning: There were undefined references.
 
-
-LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
-
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 260.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 283.
  ) 
 Here is how much of TeX's memory you used:
- 12604 strings out of 428408
- 174695 string characters out of 3162659
+ 12614 strings out of 428408
+ 174846 string characters out of 3162659
  281720 words of memory out of 3000000
- 15870 multiletter control sequences out of 15000+200000
+ 15877 multiletter control sequences out of 15000+200000
  27392 words of font info for 47 fonts, out of 3000000 for 9000
  1328 hyphenation exceptions out of 8191
- 37i,7n,45p,971b,409s stack positions out of 5000i,500n,10000p,200000b,50000s
+ 37i,6n,45p,971b,409s stack positions out of 5000i,500n,10000p,200000b,50000s
 
-Output written on Assignment_3.pdf (10 pages).
+Output written on Assignment_3.pdf (13 pages).

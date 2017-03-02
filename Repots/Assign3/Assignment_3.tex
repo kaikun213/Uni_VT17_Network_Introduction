@@ -199,17 +199,27 @@ In figure \ref{ws3} we can see the line marked where the client sends an acknowl
 	\label{ws3}
 \end{figure}
 
+\clearpage
 \newpage
 
 \section{Problem three}
 
-In the figure \ref{error 0} we can se how our server sends an error packet for when the connection times out. The first two bytes is 05 to show that is an error packet. 
+In the figure \ref{error 0} we can se how our server sends an error packet for when the connection times out. The first two bytes is 05 to show that is an error packet. Then the next two bytes is the error code, for this packet the error code is 0. This code has the meaning "Not defined, see error message (if any)."\cite{RFC1350}. After this error code there is an string with an message, this is then terminated with an zero byte at the end as figure \ref{errorPacket} shows.
+
 \begin{figure}[h!]
 	\centering
 	\includegraphics[width=0.95\textwidth,keepaspectratio]{img/error0.jpg} 
 	\caption{}
 	\label{error 0}
 \end{figure}
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=0.95\textwidth,keepaspectratio]{img/errorPacket.jpg} 
+	\caption{}
+	\label{errorPacket}
+\end{figure}
+
+\noindent As we see i figure \ref{error 1} the error codes looks quite the same, all that changes are the error code bytes(0-7) and what message we send with the packet. This Error number 1 is for when the server cant find the file the client asks for, An File not found error.
 
 \begin{figure}[h!]
 	\centering
@@ -218,6 +228,8 @@ In the figure \ref{error 0} we can se how our server sends an error packet for w
 	\label{error 1}
 \end{figure}
 
+\noindent The error code number 2 in figure \ref{error 2} is when there is some access violation on a file that the server tries to open/write/read to. I simulated this error on the write folder in our server, when i removed the permission to write to this folder the server could not write the file the client wanted to PUT. As we don't know how large the file will be we are saving the data into a buffer before we create a file, so this error gets sent only when we have read all the data and then tries to write this to a file.
+
 \begin{figure}[h!]
 	\centering
 	\includegraphics[width=0.95\textwidth,keepaspectratio]{img/error2.jpg} 
@@ -225,6 +237,8 @@ In the figure \ref{error 0} we can se how our server sends an error packet for w
 	\label{error 2}
 \end{figure}
 
+\noindent Figure \ref{error 6} shows the error code 6 which is sent when a client tries to PUT a file that are already present in the Write directory of the server. An File already exist error packet.
+ 
 \begin{figure}[h!]
 	\centering
 	\includegraphics[width=0.95\textwidth,keepaspectratio]{img/error6.jpg} 
@@ -236,6 +250,8 @@ In the figure \ref{error 0} we can se how our server sends an error packet for w
 
 \subsection{VG.2 Remaining error codes}
 
+\noindent Figure \ref{error 3} shows our error packet for if the disk or in our case folder is full. We simulated this by setting an max size for our folder of 10MB then we have a method that checks the free space each time we are going to PUT a file. If the folder would be more the 10MB after we added the file, instead of adding the file we send an error packet with code 3 "Disk full or allocation exceeded."\cite{RFC1350}.
+
 \begin{figure}[h!]
 	\centering
 	\includegraphics[width=0.95\textwidth,keepaspectratio]{img/error3.jpg} 
@@ -243,12 +259,15 @@ In the figure \ref{error 0} we can se how our server sends an error packet for w
 	\label{error 3}
 \end{figure}
 
-\begin{figure}[h!]
-	\centering
-	\includegraphics[width=0.95\textwidth,keepaspectratio]{img/error4.jpg} 
-	\caption{}
-	\label{error 4}
-\end{figure}
+\noindent We see i figure \ref{error4} that we send an error packet with code 4 when the client tries to do an illegal TFTP operation. The only operations that are legal to use are GET/PUT. 
+%\begin{figure}[h!]
+%	\centering
+%	\includegraphics[width=0.95\textwidth,keepaspectratio]{img/error4.jpg} 
+%	\caption{}
+%	\label{error 4}
+%\end{figure}
+
+\noindent Error 5 can we see in our implementation, this is shown in figure \ref{error 5}. As this is quite hard to simulate we have no wireshark capture of it. But how it would work is that if the server gets a packet with a port number we didn't expect we send back an "Unknown transfer ID."\cite{RFC1350} error packet. This is also the only error that sould not terminate the connection. So when we get this we send back an error but we keep sending to the original port.   
 
 \begin{figure}[h!]
 	\centering
@@ -256,5 +275,9 @@ In the figure \ref{error 0} we can se how our server sends an error packet for w
 	\caption{}
 	\label{error 5}
 \end{figure}
+
+\newpage
+\bibliographystyle{IEEEtran}
+\bibliography{reference}
 
 \end{document}

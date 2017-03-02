@@ -402,9 +402,14 @@ public class TFTPServer
 			
 			// ERROR: transferId changed => error message sent to other port but connection maintained
 			if (receivePacket.getPort() !=  sendSocket.getPort()){
-				DatagramSocket invalidPort = new DatagramSocket(0);
-				invalidPort.connect(new InetSocketAddress(sendSocket.getInetAddress(), receivePacket.getPort()));
-				send_ERR(invalidPort, 5, "Unknown transfer ID.");
+
+				/*????????? TFTP recognizes only one error condition that does not cause
+				termination, the source port of a received packet being incorrect.
+				In this case, an error packet is sent to the originating host. ????????????*/
+				//DatagramSocket invalidPort = new DatagramSocket(0);
+				//invalidPort.connect(new InetSocketAddress(sendSocket.getInetAddress(), receivePacket.getPort()));
+
+				send_ERR(sendSocket, 5, "Unknown transfer ID.");
 			}
 			
 			// Not correct PacketNumber => retransmission
@@ -493,6 +498,12 @@ public class TFTPServer
 		}
 		
 	}
+
+	/**
+	 * Goes through write directory and add all the files sizes together and
+	 * the return the free space left in the directory
+	 * @return long, number of bytes of free space left.
+	 */
 	private long getFreeSpaceInDirectory(){
 		long usedSpace = 0;
 
