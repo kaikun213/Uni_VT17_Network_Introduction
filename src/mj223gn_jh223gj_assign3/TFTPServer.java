@@ -402,12 +402,8 @@ public class TFTPServer
 			
 			// ERROR: transferId changed => error message sent to other port but connection maintained
 			if (receivePacket.getPort() !=  sendSocket.getPort()){
-
-				/*????????? TFTP recognizes only one error condition that does not cause
-				termination, the source port of a received packet being incorrect.
-				In this case, an error packet is sent to the originating host. ????????????*/
-				//DatagramSocket invalidPort = new DatagramSocket(0);
-				//invalidPort.connect(new InetSocketAddress(sendSocket.getInetAddress(), receivePacket.getPort()));
+				DatagramSocket invalidPort = new DatagramSocket(0);
+				invalidPort.connect(new InetSocketAddress(sendSocket.getInetAddress(), receivePacket.getPort()));
 
 				send_ERR(sendSocket, 5, "Unknown transfer ID.");
 			}
@@ -443,8 +439,8 @@ public class TFTPServer
 			ByteBuffer wrap= ByteBuffer.wrap(recBuf);
 			int opcode = wrap.getShort();
 			int blockNr = wrap.getShort();
-			
-			
+
+
 			// ERROR: Wrong OP_CODE
 			if (opcode != OP_DAT ){
 				// If client sends error => only terminate connection
