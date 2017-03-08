@@ -286,13 +286,13 @@ public class TFTPServer
 			// initialize buffer to read in file
 			ByteArrayOutputStream receivedData = new ByteArrayOutputStream();
 			byte[] buf = new byte[BUFSIZE];
-			int packetNr = 0;
+			short packetNr = 0;
 			boolean result = true;
 			
 			// build initial ACK
 			ByteBuffer packet = ByteBuffer.allocate(4);
 			short shortOP = OP_ACK;
-			short shortNR = (short) packetNr;
+			short shortNR = packetNr;
 			packet.putShort(shortOP);
 			packet.putShort(shortNR);
 			
@@ -440,7 +440,7 @@ public class TFTPServer
 	
 	private boolean receive_DATA_send_ACK(DatagramSocket sendSocket, byte[] buffer, int packetNumber) throws SocketTimeoutException, ConnectionTerminationException{
 		try {
-			sendSocket.setSoTimeout(150);
+			sendSocket.setSoTimeout(500);
 			DatagramPacket receivePacket = new DatagramPacket(buffer, buffer.length);
 			sendSocket.receive(receivePacket);
 									
@@ -449,7 +449,8 @@ public class TFTPServer
 			ByteBuffer wrap= ByteBuffer.wrap(recBuf);
 			int opcode = wrap.getShort();
 			int blockNr = wrap.getShort();
-
+			System.out.println(blockNr);
+			System.out.println(packetNumber);
 
 			// ERROR: Wrong OP_CODE
 			if (opcode != OP_DAT ){
