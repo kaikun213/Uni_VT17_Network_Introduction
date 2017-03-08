@@ -259,15 +259,15 @@ In the figure \ref{error 0} we can se how our server sends an error packet for w
 	\label{error 3}
 \end{figure}
 
-\noindent We see i figure \ref{error4} that we send an error packet with code 4 when the client tries to do an illegal TFTP operation. The only operations that are legal to use are GET/PUT. 
-%\begin{figure}[h!]
-%	\centering
-%	\includegraphics[width=0.95\textwidth,keepaspectratio]{img/error4.jpg} 
-%	\caption{}
-%	\label{error 4}
-%\end{figure}
+\noindent We see i figure \ref{error 4} that we send an error packet with code 4 when the client tries to do an illegal TFTP operation. The only operations that are legal to use are GET/PUT. 
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=0.95\textwidth,keepaspectratio]{img/error4.jpg} 
+	\caption{}
+	\label{error 4}
+\end{figure}
 
-\noindent Error 5 can we see in our implementation, this is shown in figure \ref{error 5}. As this is quite hard to simulate we have no wireshark capture of it. But how it would work is that if the server gets a packet with a port number we didn't expect we send back an "Unknown transfer ID."\cite{RFC1350} error packet. This is also the only error that sould not terminate the connection. So when we get this we send back an error but we keep sending to the original port.   
+\noindent Error 5 can we see in our implementation, this is shown in figure \ref{error 5}. As this is quite hard to simulate we have no wireshark capture of it. But how it would work is that if the server gets a packet with a port number we didn't expect we send back an "Unknown transfer ID."\cite{RFC1350} error packet. This is also the only error that should not terminate the connection. So when we get this we send back an error but we keep sending to the original port.   
 
 \begin{figure}[h!]
 	\centering

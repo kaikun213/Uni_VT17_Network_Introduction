@@ -31,7 +31,7 @@ public class TFTPServer
 	
 	public static final int MAXRETRANSMISSIONS = 5;
 	//Directory max size = 10MB
-	private final long DIRECTORY_FULL = 10000000;
+	private final long DIRECTORY_FULL = 10485760;
 	
 	public static void main(String[] args) {
 		if (args.length > 0) 
@@ -75,9 +75,11 @@ public class TFTPServer
 			final StringBuffer requestedFile= new StringBuffer();
 			final int reqtype = ParseRQ(buf, requestedFile);
 
-			new Thread() 
+			//simulation for Illeagal TFTP operation
+			//final int reqtype = 99;
+			new Thread()
 			{
-				public void run() 
+				public void run()
 				{
 					try 
 					{
@@ -103,13 +105,19 @@ public class TFTPServer
 							HandleRQ(sendSocket,requestedFile.toString(),OP_WRQ);  
 						}
 						else {
-							send_ERR(sendSocket, 4, "opcode=" + reqtype + " is invalid.");
+							send_ERR(sendSocket, 4, "Illegal TFTP operation.");
 							System.err.println("Invalid request. Sending an error packet.");
+							throw new ConnectionTerminationException();
 						}
 						sendSocket.close();
-					} 
-					catch (SocketException e) 
-						{e.printStackTrace();}
+					}
+					catch (SocketException e){
+						e.printStackTrace();
+					}
+					catch (ConnectionTerminationException e){
+						// connection closed, process interrupted
+					}
+
 				}
 			}.start();
 		}
@@ -171,6 +179,8 @@ public class TFTPServer
 					}
 				}
 			}
+
+
 		// 2 Bytes opcode offset
 		requestedFile.append(new String(buf, 2, filenameIndex-2));
 		
@@ -368,7 +378,7 @@ public class TFTPServer
 		try {
 			// Normally: 512 + 4 = 516 except for the termination packet.
 			ByteBuffer packet = ByteBuffer.allocate(data.length+4);
-			
+
 			// convert int to short (cutting of)
 			short shortOP = OP_DAT;
 			short shortNR = (short) packetNumber;
