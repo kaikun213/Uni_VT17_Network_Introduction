@@ -440,7 +440,7 @@ public class TFTPServer
 	
 	private boolean receive_DATA_send_ACK(DatagramSocket sendSocket, byte[] buffer, int packetNumber) throws SocketTimeoutException, ConnectionTerminationException{
 		try {
-			sendSocket.setSoTimeout(500);
+			sendSocket.setSoTimeout(150);
 			DatagramPacket receivePacket = new DatagramPacket(buffer, buffer.length);
 			sendSocket.receive(receivePacket);
 									
