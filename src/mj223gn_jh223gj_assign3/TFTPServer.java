@@ -30,6 +30,7 @@ public class TFTPServer
 	public static final int OP_ERR = 5;
 	
 	public static final int MAXRETRANSMISSIONS = 5;
+	public static final int TIMEOUT = 150;
 	//Directory max size = 10MB
 	private final long DIRECTORY_FULL = 10485760;
 	
@@ -73,7 +74,16 @@ public class TFTPServer
 				continue;
 
 			final StringBuffer requestedFile= new StringBuffer();
-			final int reqtype = ParseRQ(buf, requestedFile);
+			final int reqtype;
+			try {
+				reqtype = ParseRQ(buf, requestedFile);
+			} catch (IllegalArgumentException e){
+				// Only octet mode supported => Error handling
+				DatagramSocket sendSocket= new DatagramSocket(0);
+				sendSocket.connect(clientAddress);	
+				send_ERR(sendSocket,0,e.getMessage());
+				return;
+			}
 
 			//simulation for Illeagal TFTP operation
 			//final int reqtype = 99;
@@ -395,7 +405,7 @@ public class TFTPServer
 			byte[] recBuf = new byte[4];
 			DatagramPacket receivePacket= new DatagramPacket(recBuf, recBuf.length);
 			// Timeout if ACK does not arrive after 150ms
-			sendSocket.setSoTimeout(150);
+			sendSocket.setSoTimeout(TIMEOUT);
 			sendSocket.receive(receivePacket);
 			
 			// First two bytes define the OP-Code
@@ -440,7 +450,7 @@ public class TFTPServer
 	
 	private boolean receive_DATA_send_ACK(DatagramSocket sendSocket, byte[] buffer, int packetNumber) throws SocketTimeoutException, ConnectionTerminationException{
 		try {
-			sendSocket.setSoTimeout(150);
+			sendSocket.setSoTimeout(TIMEOUT);
 			DatagramPacket receivePacket = new DatagramPacket(buffer, buffer.length);
 			sendSocket.receive(receivePacket);
 									
@@ -449,9 +459,7 @@ public class TFTPServer
 			ByteBuffer wrap= ByteBuffer.wrap(recBuf);
 			int opcode = wrap.getShort();
 			int blockNr = wrap.getShort();
-			System.out.println(blockNr);
-			System.out.println(packetNumber);
-
+	
 			// ERROR: Wrong OP_CODE
 			if (opcode != OP_DAT ){
 				// If client sends error => only terminate connection
@@ -500,6 +508,8 @@ public class TFTPServer
 
 			// send the packet
 			sendSocket.send(new DatagramPacket(packet.array(), packet.position()));
+			// reporting err
+			System.out.printf("Error send: %d : %s", errCode, errMessage);
 		}catch (IOException e){
 			System.out.println("Client is dead");
 		}

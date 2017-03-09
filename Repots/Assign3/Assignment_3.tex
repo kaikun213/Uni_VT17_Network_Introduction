@@ -126,10 +126,10 @@
 
 \begin{itemize}
 \item\textbf{Michael}
-Work percentage 50\%
+Work percentage 50\% Worked on the implementation and review of the functions especially the send\_ERR and wrote the section 3 of the report (inc. screens).
 
 \item\textbf{Jakob} 
-Work percentage 50\%
+Work percentage 50\% Worked on the implementation and review of the functions especially the read/write loop and wrote the sections 1 and 2 of the report.
 \end{itemize}
 
 
@@ -205,6 +205,7 @@ In figure \ref{ws3} we can see the line marked where the client sends an acknowl
 \section{Problem three}
 
 In the figure \ref{error 0} we can se how our server sends an error packet for when the connection times out. The first two bytes is 05 to show that is an error packet. Then the next two bytes is the error code, for this packet the error code is 0. This code has the meaning "Not defined, see error message (if any)."\cite{RFC1350}. After this error code there is an string with an message, this is then terminated with an zero byte at the end as figure \ref{errorPacket} shows.
+In case of receiving an ACK-Packet with a wrong block-number when sending DATA we retransmit the the DATA-Packet. On the other hand when we receive DATA from the client with a wrong block-number we ignore it and continue receiving. This was not completely clearly in the specification. \cite{RFC1350} 
 
 \begin{figure}[h!]
 	\centering
@@ -260,7 +261,7 @@ In the figure \ref{error 0} we can se how our server sends an error packet for w
 \end{figure}
 
 \noindent We see i figure \ref{error 4} that we send an error packet with code 4 when the client tries to do an illegal TFTP operation. The only operations that are legal to use are GET/PUT. 
-\begin{figure}[h!]
+\begin{figure}[hp!]
 	\centering
 	\includegraphics[width=0.95\textwidth,keepaspectratio]{img/error4.jpg} 
 	\caption{}
@@ -269,13 +270,13 @@ In the figure \ref{error 0} we can se how our server sends an error packet for w
 
 \noindent Error 5 can we see in our implementation, this is shown in figure \ref{error 5}. As this is quite hard to simulate we have no wireshark capture of it. But how it would work is that if the server gets a packet with a port number we didn't expect we send back an "Unknown transfer ID."\cite{RFC1350} error packet. This is also the only error that should not terminate the connection. So when we get this we send back an error but we keep sending to the original port.   
 
-\begin{figure}[h!]
+\begin{figure}[hp!]
 	\centering
 	\includegraphics[width=0.95\textwidth,keepaspectratio]{img/error5.jpg} 
 	\caption{}
 	\label{error 5}
 \end{figure}
-
+\noindent
 \newpage
 \bibliographystyle{IEEEtran}
 \bibliography{reference}
