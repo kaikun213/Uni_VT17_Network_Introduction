@@ -1,0 +1,153 @@
+autostart = False
+version = 0.8.7
+[qemu 127.0.0.1:10525]
+    workingdir = qemu-flash-drives
+    udp = 40000
+    [[QemuDevice]]
+        image = /home/kaikun/MEGA/MEGAsync/Current_Courses/VT17_Network_Introduction/Assignment4/Images/linux-microcore-4.0.2-clean.img
+        ram = 128
+        netcard = e1000
+    [[QEMU Device_2]]
+        e0 = R4 f1/0
+        x = 530.5
+        y = -57.5
+        z = 1.0
+    [[QEMU Device]]
+        e0 = R1 f1/0
+        x = -643.5
+        y = -64.5
+        z = 1.0
+[127.0.0.1:7200]
+    workingdir = /tmp
+    udp = 10001
+    [[3725]]
+        image = /home/kaikun/MEGA/MEGAsync/Current_Courses/VT17_Network_Introduction/Assignment4/Images/c3725-advipservicesk9-mz.124-15.T6.image
+        idlepc = 0x6144a574
+        sparsemem = True
+        ghostios = True
+    [[ROUTER R4]]
+        model = 3725
+        console = 2104
+        aux = 2504
+        cnfg = /home/kaikun/MEGA/MEGAsync/Current_Courses/VT17_Network_Introduction/Assignment4/Projects/ConfigsRouters/R4.cfg
+        wic0/0 = WIC-1T
+        s0/0 = R3 s0/0
+        f0/0 = R2 f0/1
+        slot1 = NM-1FE-TX
+        f1/0 = Device_2 e0
+        slot2 = NM-1FE-TX
+        f2/0 = R1 f2/0
+        x = 197.0
+        y = -52.0
+        z = 1.0
+    [[ROUTER R1]]
+        model = 3725
+        console = 2101
+        aux = 2501
+        cnfg = /home/kaikun/MEGA/MEGAsync/Current_Courses/VT17_Network_Introduction/Assignment4/Projects/ConfigsRouters/R1.cfg
+        wic0/0 = WIC-1T
+        f0/0 = R2 f0/0
+        f0/1 = R3 f0/0
+        slot1 = NM-1FE-TX
+        f1/0 = Device e0
+        slot2 = NM-1FE-TX
+        f2/0 = R4 f2/0
+        x = -351.0
+        y = -59.0
+        z = 1.0
+    [[ROUTER R2]]
+        model = 3725
+        console = 2102
+        aux = 2502
+        cnfg = /home/kaikun/MEGA/MEGAsync/Current_Courses/VT17_Network_Introduction/Assignment4/Projects/ConfigsRouters/R2.cfg
+        f0/0 = R1 f0/0
+        f0/1 = R4 f0/0
+        slot1 = NM-1FE-TX
+        x = -84.0
+        y = -248.0
+        z = 1.0
+    [[ROUTER R3]]
+        model = 3725
+        console = 2103
+        aux = 2503
+        cnfg = /home/kaikun/MEGA/MEGAsync/Current_Courses/VT17_Network_Introduction/Assignment4/Projects/ConfigsRouters/R3.cfg
+        wic0/0 = WIC-1T
+        s0/0 = R4 s0/0
+        f0/0 = R1 f0/1
+        slot1 = NM-1FE-TX
+        x = -93.0
+        y = 156.0
+        z = 1.0
+[GNS3-DATA]
+    configs = /home/kaikun/MEGA/MEGAsync/Current_Courses/VT17_Network_Introduction/Assignment4/Projects/ConfigsRouters
+    [[NOTE 1]]
+        text = "R1(f0/0) -> 1.1.1.1\nR1(f0/1) -> 1.1.3.1\nR1(f2/0) -> 1.1.5.1\nR1(f1/0) -> 192.168.1.101"
+        x = -695.0
+        y = 94.5
+        color = "#3c3c3c"
+    [[NOTE 2]]
+        text = "R2(f0/0) -> 1.1.1.2\nR2(f0/1) -> 1.1.2.1"
+        x = -694.0
+        y = 179.5
+        color = "#3c3c3c"
+    [[NOTE 3]]
+        text = "192.168.1.100"
+        x = -659.0
+        y = 5.5
+        color = "#3c3c3c"
+    [[NOTE 4]]
+        text = "R4(f0/0) -> 1.1.2.2\nR4(s0/0) -> 1.1.4.2\nR4(f2/0) -> 1.1.5.2\nR4(f1/0) -> 192.168.2.101"
+        x = -695.0
+        y = 266.5
+        color = "#3c3c3c"
+    [[NOTE 5]]
+        text = "f2/0 - f2/0\n1.1.5.0/30\n10Mbps"
+        x = -90.0
+        y = -86.5
+        color = "#3c3c3c"
+    [[NOTE 6]]
+        text = "R3(f0/0) -> 1.1.3.2\nR3(s0/0) -> 1.1.4.1"
+        x = -696.0
+        y = 223.5
+        color = "#3c3c3c"
+    [[NOTE 7]]
+        text = "f0/0 - f0/0\n1.1.1.0/30\n100Mbps"
+        x = -251.0
+        y = -194.5
+        color = "#3c3c3c"
+    [[NOTE 8]]
+        text = "s0/0 - s0/0\n1.1.4.0/30\n1544Kbps"
+        x = 106.0
+        y = 88.5
+        color = "#3c3c3c"
+    [[NOTE 9]]
+        text = "eth0 - f1/0\n192.168.1.0/24"
+        x = -518.0
+        y = -79.5
+        color = "#3c3c3c"
+    [[NOTE 10]]
+        text = "f0/1 - f0/0\n1.1.2.0/30\n100Mbps"
+        x = 66.0
+        y = -197.5
+        color = "#3c3c3c"
+    [[NOTE 11]]
+        text = "f0/1 - f0/0\n1.1.3.0/30\n100Mbps"
+        x = -295.0
+        y = 73.5
+        color = "#3c3c3c"
+    [[NOTE 12]]
+        text = "192.168.2.100"
+        x = 511.0
+        y = 2.5
+        color = "#3c3c3c"
+    [[NOTE 13]]
+        text = "f1/0 - eth0\n192.168.2.0/24"
+        x = 351.0
+        y = -76.5
+        color = "#3c3c3c"
+    [[SHAPE 1]]
+        type = rectangle
+        x = -709.0
+        y = 86.0
+        width = 264.0
+        height = 313.0
